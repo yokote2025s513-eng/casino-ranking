@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>CASINO ROYALE – FULL RANKING</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#f0c040;--gold2:#ffd700;--neon:#00ffe7;--dark:#05080f;
+  --card:#0b1120;--border:rgba(240,192,64,.25);--red:#ff2d78;
+}
+html,body{height:100%}
+body{background:var(--dark);color:#e8dfc0;font-family:'Rajdhani',sans-serif;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:0;
+  background:linear-gradient(rgba(0,255,231,.03) 1px,transparent 1px),
+             linear-gradient(90deg,rgba(0,255,231,.03) 1px,transparent 1px);
+  background-size:60px 60px;pointer-events:none}
+.wrapper{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:0 24px 80px}
+header{text-align:center;padding:48px 0 32px}
+h1{font-family:'Orbitron',monospace;font-size:clamp(1.6rem,5vw,3rem);font-weight:900;
+  background:linear-gradient(135deg,var(--gold2),var(--gold),#c8860a);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 0 12px rgba(240,192,64,.5));letter-spacing:.08em}
+.sub{font-size:.75rem;letter-spacing:.35em;color:rgba(232,223,192,.4);text-transform:uppercase;margin-top:8px}
+
+/* live */
+.live-badge{display:inline-flex;align-items:center;gap:8px;font-family:'Orbitron',monospace;
+  font-size:.6rem;letter-spacing:.2em;color:var(--neon);margin-top:14px;justify-content:center;width:100%}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--neon);animation:pulse 1.5s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(0,255,231,.6)}50%{box-shadow:0 0 0 5px rgba(0,255,231,0)}}
+
+nav{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin:24px 0 36px}
+nav a{font-family:'Orbitron',monospace;font-size:.65rem;letter-spacing:.12em;color:var(--neon);
+  text-decoration:none;border:1px solid var(--neon);padding:7px 18px;border-radius:2px;transition:all .2s}
+nav a:hover{background:var(--neon);color:var(--dark);box-shadow:0 0 14px var(--neon)}
+
+/* search */
+.search-panel{background:var(--card);border:1px solid var(--gold);border-radius:4px;
+  padding:28px;margin-bottom:32px;box-shadow:0 0 30px rgba(240,192,64,.1)}
+.search-panel h2{font-family:'Orbitron',monospace;font-size:.7rem;letter-spacing:.3em;color:var(--gold);margin-bottom:18px}
+.search-row{display:flex;gap:12px;flex-wrap:wrap}
+.search-row input{flex:1;min-width:200px;background:rgba(0,0,0,.4);border:1px solid var(--border);
+  border-radius:3px;color:#e8dfc0;font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:600;
+  padding:12px 16px;outline:none;transition:border-color .2s,box-shadow .2s}
+.search-row input:focus{border-color:var(--neon);box-shadow:0 0 12px rgba(0,255,231,.2)}
+.btn-search{font-family:'Orbitron',monospace;font-size:.7rem;letter-spacing:.15em;
+  background:var(--gold);color:var(--dark);border:none;border-radius:3px;
+  padding:12px 26px;cursor:pointer;font-weight:700;transition:all .2s;white-space:nowrap}
+.btn-search:hover{box-shadow:0 0 18px rgba(240,192,64,.5);opacity:.9}
+
+.result-card{background:linear-gradient(135deg,rgba(240,192,64,.08),rgba(0,255,231,.05));
+  border:1px solid var(--gold);border-radius:4px;padding:24px 28px;margin-top:18px;display:none}
+.result-card.show{display:block;animation:fadeIn .4s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.result-nick{font-family:'Orbitron',monospace;font-size:1.4rem;color:var(--gold2);margin-bottom:16px;
+  filter:drop-shadow(0 0 8px rgba(240,192,64,.5))}
+.result-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.result-item{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:3px;padding:14px 16px}
+.result-item .rg-name{font-size:.75rem;letter-spacing:.15em;color:rgba(232,223,192,.5);margin-bottom:8px}
+.result-item .rg-rank{font-family:'Orbitron',monospace;font-size:1.2rem;color:var(--neon);margin-bottom:4px}
+.result-item .rg-rank .pos{font-size:2rem;color:var(--gold2);line-height:1}
+.result-item .rg-amount{font-family:'Orbitron',monospace;font-size:.85rem;color:var(--neon)}
+.not-found{color:var(--red);font-size:.9rem;letter-spacing:.1em;margin-top:14px}
+
+/* tabs */
+.tab-bar{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--border);margin-bottom:24px}
+.tab{font-family:'Orbitron',monospace;font-size:.65rem;letter-spacing:.12em;padding:10px 20px;
+  cursor:pointer;color:rgba(232,223,192,.5);border-bottom:2px solid transparent;transition:all .2s;text-transform:uppercase}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tab:hover:not(.active){color:rgba(232,223,192,.8)}
+
+/* rank table */
+.rank-table{width:100%;border-collapse:collapse}
+.rank-table thead th{font-family:'Orbitron',monospace;font-size:.6rem;letter-spacing:.18em;
+  color:var(--gold);padding:10px 14px;border-bottom:1px solid var(--border);text-align:left}
+.rank-table tbody tr{transition:background .15s}
+.rank-table tbody tr:hover td{background:rgba(240,192,64,.04)}
+.rank-table td{padding:12px 14px;border-bottom:1px solid rgba(240,192,64,.07);vertical-align:middle}
+.pos-badge{font-family:'Orbitron',monospace;font-size:.9rem;font-weight:700;
+  display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%}
+.pos-1{background:rgba(255,215,0,.2);color:#ffd700;border:1px solid #ffd700;box-shadow:0 0 10px rgba(255,215,0,.3)}
+.pos-2{background:rgba(192,192,192,.15);color:#c0c0c0;border:1px solid #c0c0c0}
+.pos-3{background:rgba(205,127,50,.15);color:#cd7f32;border:1px solid #cd7f32}
+.pos-other{color:rgba(232,223,192,.35);font-size:.8rem}
+.nick-cell{font-size:1rem;font-weight:600}
+.top-row .nick-cell{color:var(--gold2)}
+.amount-cell{font-family:'Orbitron',monospace;font-size:.85rem;color:var(--neon)}
+.top-row .amount-cell{color:var(--gold2)}
+.bar-cell{width:30%}
+.bar-bg{background:rgba(255,255,255,.05);border-radius:2px;height:6px;overflow:hidden}
+.bar-fill{height:100%;background:linear-gradient(90deg,var(--neon),var(--gold));border-radius:2px;transition:width .6s}
+.top-row .bar-fill{background:linear-gradient(90deg,var(--gold),var(--gold2))}
+
+.panel{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:28px;margin-bottom:28px}
+.loading-row{text-align:center;color:rgba(232,223,192,.3);padding:40px;
+  letter-spacing:.2em;font-family:'Orbitron',monospace;font-size:.7rem;animation:blink 1.2s infinite}
+@keyframes blink{0%,100%{opacity:.3}50%{opacity:1}}
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <header>
+    <h1>🏆 FULL RANKING</h1>
+    <p class="sub">Casino Royale – Live Scoreboard</p>
+    <div class="live-badge"><span class="live-dot"></span>LIVE – リアルタイム更新中</div>
+  </header>
+
+  <nav>
+    <a href="index.html">🏠 TOP</a>
+    <a href="ranking.html">🏆 ランキング</a>
+    <a href="obs.html">📺 OBS</a>
+  </nav>
+
+  <!-- self search -->
+  <div class="search-panel">
+    <h2>▸ MY RANK – 自分の順位を調べる</h2>
+    <div class="search-row">
+      <input type="text" id="searchInput" placeholder="ニックネームを入力…" maxlength="20"/>
+      <button class="btn-search" onclick="doSearch()">SEARCH</button>
+    </div>
+    <div id="searchResult"></div>
+  </div>
+
+  <!-- ranking tabs -->
+  <div class="panel">
+    <div class="tab-bar" id="tabBar">
+      <div class="tab active" data-game="ALL"        onclick="switchTab(this)">🌐 総合</div>
+      <div class="tab" data-game="ポーカー"          onclick="switchTab(this)">🃏 ポーカー</div>
+      <div class="tab" data-game="チンチロ"          onclick="switchTab(this)">🎲 チンチロ</div>
+      <div class="tab" data-game="ブラックジャック"  onclick="switchTab(this)">🂡 ブラックジャック</div>
+      <div class="tab" data-game="競馬"              onclick="switchTab(this)">🏇 競馬</div>
+    </div>
+    <div id="rankingContent"><div class="loading-row">CONNECTING...</div></div>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="data.js"></script>
+<script>
+let currentGame='ALL';
+let latestRecords=[];
+
+// ── realtime ──
+onRecordsChange(records=>{
+  latestRecords=records;
+  renderRanking();
+  // 検索中なら即再検索
+  const q=document.getElementById('searchInput').value.trim();
+  if(q) doSearch();
+});
+
+// ── search ──
+function doSearch(){
+  const nick=document.getElementById('searchInput').value.trim();
+  const el=document.getElementById('searchResult');
+  if(!nick){el.innerHTML='';return}
+  const allData=aggregateAll(latestRecords);
+  const found=allData.find(d=>d.nickname.toLowerCase()===nick.toLowerCase());
+  if(!found){el.innerHTML=`<p class="not-found">「${nick}」は見つかりませんでした</p>`;return}
+  const allRank=allData.findIndex(d=>d.nickname.toLowerCase()===nick.toLowerCase())+1;
+  const gameItems=GAMES.map(game=>{
+    const gd=aggregateByGame(latestRecords,game);
+    const idx=gd.findIndex(d=>d.nickname.toLowerCase()===nick.toLowerCase());
+    if(idx<0) return `<div class="result-item"><div class="rg-name">${game}</div><div style="color:rgba(232,223,192,.3);font-size:.85rem">参加なし</div></div>`;
+    return `<div class="result-item">
+      <div class="rg-name">${game}</div>
+      <div class="rg-rank"><span class="pos">${idx+1}</span> 位 / ${gd.length}人</div>
+      <div class="rg-amount">${fmt(gd[idx].total)}</div>
+    </div>`;
+  }).join('');
+  el.innerHTML=`<div class="result-card show">
+    <div class="result-nick">👤 ${found.nickname}</div>
+    <div style="margin-bottom:16px;font-size:.95rem">
+      <span style="color:rgba(232,223,192,.5);letter-spacing:.1em">総合順位：</span>
+      <span style="font-family:'Orbitron',monospace;font-size:1.4rem;color:var(--gold2)">${allRank}</span>
+      <span style="color:rgba(232,223,192,.5)"> 位 / ${allData.length}人</span>
+      <span style="margin-left:20px;font-family:'Orbitron',monospace;color:var(--neon)">${fmt(found.total)}</span>
+    </div>
+    <div class="result-grid">${gameItems}</div>
+  </div>`;
+}
+document.getElementById('searchInput').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch()});
+
+// ── tabs ──
+function switchTab(el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');currentGame=el.dataset.game;renderRanking();
+}
+
+function renderRanking(){
+  const data=currentGame==='ALL'?aggregateAll(latestRecords):aggregateByGame(latestRecords,currentGame);
+  const max=data[0]?.total||1;
+  if(data.length===0){
+    document.getElementById('rankingContent').innerHTML='<p style="text-align:center;color:rgba(232,223,192,.3);padding:40px 0;letter-spacing:.2em">NO DATA</p>';return;
+  }
+  const rows=data.map((d,i)=>{
+    const rank=i+1;const isTop=rank<=3;
+    let badge=rank===1?`<span class="pos-badge pos-1">1</span>`
+             :rank===2?`<span class="pos-badge pos-2">2</span>`
+             :rank===3?`<span class="pos-badge pos-3">3</span>`
+             :`<span class="pos-badge pos-other">${rank}</span>`;
+    const pct=(d.total/max*100).toFixed(1);
+    return `<tr class="${isTop?'top-row':''}">
+      <td>${badge}</td><td class="nick-cell">${d.nickname}</td>
+      <td class="amount-cell">${fmt(d.total)}</td>
+      <td class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:${pct}%"></div></div></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('rankingContent').innerHTML=`
+    <table class="rank-table">
+      <thead><tr><th>RANK</th><th>PLAYER</th><th>TOTAL</th><th></th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+</script>
+</body>
+</html>

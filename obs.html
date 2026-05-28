@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>CASINO ROYALE – OBS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#f0c040;--gold2:#ffd700;--neon:#00ffe7;--dark:#05080f;--card:#0b1120;--red:#ff2d78;
+}
+html,body{height:100%;overflow:hidden}
+body{background:var(--dark);color:#e8dfc0;font-family:'Rajdhani',sans-serif}
+body::before{content:'';position:fixed;inset:0;z-index:0;
+  background:linear-gradient(rgba(0,255,231,.05) 1px,transparent 1px),
+             linear-gradient(90deg,rgba(0,255,231,.05) 1px,transparent 1px);
+  background-size:80px 80px;pointer-events:none}
+
+.corner{position:fixed;width:80px;height:80px;z-index:2}
+.corner.tl{top:20px;left:20px;border-top:2px solid var(--gold);border-left:2px solid var(--gold)}
+.corner.tr{top:20px;right:20px;border-top:2px solid var(--gold);border-right:2px solid var(--gold)}
+.corner.bl{bottom:60px;left:20px;border-bottom:2px solid var(--gold);border-left:2px solid var(--gold)}
+.corner.br{bottom:60px;right:20px;border-bottom:2px solid var(--gold);border-right:2px solid var(--gold)}
+
+.obs-header{position:fixed;top:0;left:0;right:0;z-index:10;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 60px 16px;
+  background:linear-gradient(180deg,rgba(5,8,15,.98) 80%,transparent);
+  border-bottom:1px solid rgba(240,192,64,.2)}
+.obs-logo{font-family:'Orbitron',monospace;font-size:1.9rem;font-weight:900;
+  background:linear-gradient(135deg,var(--gold2),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 0 14px rgba(240,192,64,.6));letter-spacing:.08em}
+.obs-center{display:flex;align-items:center;gap:20px}
+.obs-suit{font-size:1.3rem;color:var(--gold);opacity:.8}
+.live-badge{display:inline-flex;align-items:center;gap:7px;
+  font-family:'Orbitron',monospace;font-size:.55rem;letter-spacing:.2em;color:var(--neon)}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--neon);animation:pulse 1.5s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(0,255,231,.6)}50%{box-shadow:0 0 0 6px rgba(0,255,231,0)}}
+.obs-right{display:flex;align-items:center;gap:18px}
+.obs-time{font-family:'Orbitron',monospace;font-size:1rem;color:var(--neon);
+  letter-spacing:.2em;filter:drop-shadow(0 0 8px var(--neon))}
+.admin-link{font-family:'Orbitron',monospace;font-size:.55rem;letter-spacing:.15em;
+  color:rgba(232,223,192,.3);text-decoration:none;border:1px solid rgba(232,223,192,.15);
+  padding:6px 14px;border-radius:2px;transition:all .2s}
+.admin-link:hover{color:var(--gold);border-color:var(--gold)}
+
+.ticker-bar{position:fixed;bottom:0;left:0;right:0;z-index:10;
+  background:rgba(240,192,64,.08);border-top:1px solid rgba(240,192,64,.3);
+  padding:11px 0;overflow:hidden}
+.ticker-inner{display:flex;gap:80px;animation:ticker 30s linear infinite;
+  font-family:'Orbitron',monospace;font-size:.85rem;letter-spacing:.15em;color:var(--gold);white-space:nowrap}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+.content{position:fixed;top:86px;bottom:54px;left:0;right:0;z-index:1;
+  display:flex;flex-direction:column;overflow:hidden}
+.slides{flex:1;position:relative}
+.slide{position:absolute;inset:0;display:flex;align-items:stretch;
+  opacity:0;transition:opacity .9s ease;padding:20px 60px}
+.slide.active{opacity:1}
+
+/* single game panel */
+.game-panel{flex:1;display:flex;flex-direction:column}
+.game-header{display:flex;align-items:center;gap:20px;margin-bottom:18px;
+  padding-bottom:14px;border-bottom:1px solid rgba(240,192,64,.2)}
+.game-icon{font-size:3.2rem;filter:drop-shadow(0 0 10px var(--gold))}
+.game-title{font-family:'Orbitron',monospace;font-size:1.7rem;font-weight:700;
+  color:var(--gold);letter-spacing:.06em}
+
+/* obs rows */
+.obs-row{display:flex;align-items:center;gap:16px;padding:9px 0;
+  border-bottom:1px solid rgba(240,192,64,.07);animation:rowIn .5s both}
+.obs-row:last-child{border-bottom:none}
+@keyframes rowIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+.obs-pos{font-family:'Orbitron',monospace;font-size:1.1rem;font-weight:700;
+  width:42px;text-align:center;flex-shrink:0}
+.obs-pos.p1{font-size:1.5rem;color:#ffd700;filter:drop-shadow(0 0 8px #ffd700)}
+.obs-pos.p2{color:#c0c0c0}
+.obs-pos.p3{color:#cd7f32}
+.obs-pos.px{color:rgba(232,223,192,.3);font-size:.9rem}
+.obs-nick{flex:1;font-size:1.4rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.obs-row.p1-row .obs-nick{color:#ffd700;font-size:1.7rem}
+.obs-amount{font-family:'Orbitron',monospace;font-size:1.1rem;color:var(--neon);flex-shrink:0}
+.obs-row.p1-row .obs-amount{color:var(--gold2);font-size:1.3rem}
+
+/* 4-split */
+.split4{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:16px;flex:1}
+.mini-panel{background:var(--card);border:1px solid rgba(240,192,64,.2);
+  border-radius:4px;padding:18px 22px;overflow:hidden}
+.mini-panel-header{display:flex;align-items:center;gap:12px;margin-bottom:10px;
+  padding-bottom:8px;border-bottom:1px solid rgba(240,192,64,.15)}
+.mini-icon{font-size:1.5rem}
+.mini-title{font-family:'Orbitron',monospace;font-size:.82rem;color:var(--gold);letter-spacing:.08em}
+.mini-row{display:flex;align-items:center;gap:10px;padding:6px 0;
+  border-bottom:1px solid rgba(240,192,64,.06);animation:rowIn .5s both}
+.mini-row:last-child{border-bottom:none}
+.mini-pos{font-family:'Orbitron',monospace;font-size:.78rem;width:26px;text-align:center}
+.mini-pos.m1{color:#ffd700;font-size:.95rem}
+.mini-pos.m2{color:#c0c0c0}
+.mini-pos.m3{color:#cd7f32}
+.mini-pos.mx{color:rgba(232,223,192,.25)}
+.mini-nick{flex:1;font-size:.93rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mini-row.m1-row .mini-nick{color:#ffd700}
+.mini-amount{font-family:'Orbitron',monospace;font-size:.72rem;color:var(--neon)}
+
+.slide-dots{display:flex;justify-content:center;gap:10px;padding:6px 0;flex-shrink:0}
+.dot{width:8px;height:8px;border-radius:50%;background:rgba(240,192,64,.2);transition:all .3s}
+.dot.active{background:var(--gold);transform:scale(1.4)}
+
+.no-data{text-align:center;padding:40px;color:rgba(232,223,192,.3);
+  letter-spacing:.2em;font-family:'Orbitron',monospace;font-size:.8rem}
+.connecting{text-align:center;padding:60px;color:rgba(0,255,231,.4);
+  letter-spacing:.3em;font-family:'Orbitron',monospace;font-size:.75rem;animation:blink 1.2s infinite}
+@keyframes blink{0%,100%{opacity:.3}50%{opacity:1}}
+</style>
+</head>
+<body>
+<div class="corner tl"></div><div class="corner tr"></div>
+<div class="corner bl"></div><div class="corner br"></div>
+
+<div class="obs-header">
+  <div class="obs-logo">♠ CASINO ROYALE</div>
+  <div class="obs-center">
+    <div class="obs-suit">♥ ♦ ♣</div>
+    <div class="live-badge"><span class="live-dot"></span>LIVE</div>
+  </div>
+  <div class="obs-right">
+    <div class="obs-time" id="clock"></div>
+    <a href="admin.html" class="admin-link">⚙ ADMIN</a>
+  </div>
+</div>
+
+<div class="content">
+  <div class="slides" id="slides"><div class="connecting">CONNECTING TO DATABASE...</div></div>
+  <div class="slide-dots" id="dots"></div>
+</div>
+
+<div class="ticker-bar">
+  <div class="ticker-inner" id="ticker">CASINO ROYALE　◆　LIVE RANKING　◆　CASINO ROYALE　◆　LIVE RANKING</div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="data.js"></script>
+<script>
+const ICONS={'ポーカー':'🃏','チンチロ':'🎲','ブラックジャック':'🂡','競馬':'🏇'};
+const TOP_N=5;
+let latestRecords=[];
+let currentSlide=0;
+let slideTimer=null;
+
+// clock
+function updateClock(){
+  const n=new Date();
+  document.getElementById('clock').textContent=
+    [n.getHours(),n.getMinutes(),n.getSeconds()].map(v=>String(v).padStart(2,'0')).join(':');
+}
+setInterval(updateClock,1000);updateClock();
+
+function posClass(i,p='p'){return i===0?`${p}1`:i===1?`${p}2`:i===2?`${p}3`:`${p}x`}
+
+function buildSingleSlide(game){
+  const data=aggregateByGame(latestRecords,game).slice(0,TOP_N);
+  const rows=data.length?data.map((d,i)=>{
+    const pc=posClass(i);const crown=i===0?'👑':i+1;
+    return `<div class="obs-row ${pc==='p1'?'p1-row':''}" style="animation-delay:${i*.12}s">
+      <div class="obs-pos ${pc}">${crown}</div>
+      <div class="obs-nick">${d.nickname}</div>
+      <div class="obs-amount">${fmt(d.total)}</div>
+    </div>`;
+  }).join(''):'<div class="no-data">NO DATA</div>';
+  return `<div class="game-panel">
+    <div class="game-header"><span class="game-icon">${ICONS[game]}</span><div class="game-title">${game}</div></div>
+    ${rows}
+  </div>`;
+}
+
+function buildAllSlide(){
+  const data=aggregateAll(latestRecords).slice(0,TOP_N);
+  const rows=data.length?data.map((d,i)=>{
+    const pc=posClass(i);const crown=i===0?'👑':i+1;
+    return `<div class="obs-row ${pc==='p1'?'p1-row':''}" style="animation-delay:${i*.12}s">
+      <div class="obs-pos ${pc}">${crown}</div>
+      <div class="obs-nick">${d.nickname}</div>
+      <div class="obs-amount">${fmt(d.total)}</div>
+    </div>`;
+  }).join(''):'<div class="no-data">NO DATA</div>';
+  return `<div class="game-panel">
+    <div class="game-header"><span class="game-icon" style="font-size:2.8rem">🌐</span><div class="game-title">総合ランキング</div></div>
+    ${rows}
+  </div>`;
+}
+
+function buildSplit4Slide(){
+  const panels=GAMES.map(game=>{
+    const data=aggregateByGame(latestRecords,game).slice(0,3);
+    const rows=data.map((d,i)=>{
+      const mc=posClass(i,'m');const crown=i===0?'👑':i+1;
+      return `<div class="mini-row ${mc==='m1'?'m1-row':''}" style="animation-delay:${i*.1}s">
+        <div class="mini-pos ${mc}">${crown}</div>
+        <div class="mini-nick">${d.nickname}</div>
+        <div class="mini-amount">${fmt(d.total)}</div>
+      </div>`;
+    }).join('')||'<div style="color:rgba(232,223,192,.25);font-size:.8rem;padding:6px 0;letter-spacing:.1em">NO DATA</div>';
+    return `<div class="mini-panel">
+      <div class="mini-panel-header"><span class="mini-icon">${ICONS[game]}</span><div class="mini-title">${game}</div></div>
+      ${rows}
+    </div>`;
+  }).join('');
+  return `<div class="split4">${panels}</div>`;
+}
+
+const slidesDefs=[
+  {label:'ALL',fn:buildAllSlide},
+  {label:'🃏',fn:()=>buildSingleSlide('ポーカー')},
+  {label:'🎲',fn:()=>buildSingleSlide('チンチロ')},
+  {label:'🂡',fn:()=>buildSingleSlide('ブラックジャック')},
+  {label:'🏇',fn:()=>buildSingleSlide('競馬')},
+  {label:'4×',fn:buildSplit4Slide},
+];
+
+function renderSlides(){
+  const container=document.getElementById('slides');
+  const dots=document.getElementById('dots');
+  container.innerHTML=slidesDefs.map((s,i)=>
+    `<div class="slide${i===currentSlide?' active':''}">${s.fn()}</div>`
+  ).join('');
+  dots.innerHTML=slidesDefs.map((_,i)=>
+    `<div class="dot${i===currentSlide?' active':''}"></div>`
+  ).join('');
+  // ticker
+  const all=aggregateAll(latestRecords).slice(0,12);
+  if(all.length){
+    const t=all.map(d=>`${d.nickname}  ${fmt(d.total)}`).join('　◆　');
+    document.getElementById('ticker').textContent=t+'　　　　'+t;
+  }
+}
+
+function startSlideTimer(){
+  if(slideTimer) clearInterval(slideTimer);
+  slideTimer=setInterval(()=>{
+    currentSlide=(currentSlide+1)%slidesDefs.length;
+    renderSlides();
+  },6000);
+}
+
+// ── Firebase リアルタイム購読 ──
+onRecordsChange(records=>{
+  const wasEmpty=latestRecords.length===0;
+  latestRecords=records;
+  renderSlides();
+  if(wasEmpty) startSlideTimer(); // 初回データ受信時にタイマー開始
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>CASINO ROYALE – ADMIN</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#f0c040;--gold2:#ffd700;--neon:#00ffe7;--dark:#05080f;
+  --card:#0b1120;--border:rgba(240,192,64,.25);--red:#ff2d78;--green:#39ff14;
+}
+html,body{height:100%}
+body{background:var(--dark);color:#e8dfc0;font-family:'Rajdhani',sans-serif;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:0;
+  background:linear-gradient(rgba(0,255,231,.03) 1px,transparent 1px),
+             linear-gradient(90deg,rgba(0,255,231,.03) 1px,transparent 1px);
+  background-size:60px 60px;pointer-events:none}
+
+/* ── ログインモーダル（操作時のみ表示） ── */
+#loginModal{position:fixed;inset:0;z-index:200;background:rgba(5,8,15,.92);
+  display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
+#loginModal.open{display:flex}
+.login-box{background:var(--card);border:1px solid var(--gold);border-radius:6px;
+  padding:44px 40px;text-align:center;width:min(360px,90vw);box-shadow:0 0 40px rgba(240,192,64,.2)}
+.login-box h2{font-family:'Orbitron',monospace;font-size:.95rem;letter-spacing:.3em;color:var(--gold);margin-bottom:6px}
+.login-box p{font-size:.82rem;color:rgba(232,223,192,.4);letter-spacing:.1em;margin-bottom:24px}
+.pw-field{width:100%;background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:3px;
+  color:var(--neon);font-family:'Orbitron',monospace;font-size:.9rem;padding:11px 16px;outline:none;
+  letter-spacing:.2em;margin-bottom:14px;text-align:center;transition:border-color .2s,box-shadow .2s}
+.pw-field:focus{border-color:var(--neon);box-shadow:0 0 12px rgba(0,255,231,.25)}
+.btn-login{width:100%;font-family:'Orbitron',monospace;font-size:.72rem;letter-spacing:.2em;
+  color:var(--dark);background:var(--gold);border:none;border-radius:3px;padding:12px;
+  cursor:pointer;font-weight:700;transition:opacity .2s,box-shadow .2s}
+.btn-login:hover{opacity:.85;box-shadow:0 0 18px rgba(240,192,64,.5)}
+.login-err{color:var(--red);font-size:.78rem;letter-spacing:.1em;margin-top:10px;min-height:1.2em}
+.btn-cancel-login{margin-top:10px;background:transparent;border:none;color:rgba(232,223,192,.3);
+  font-size:.72rem;cursor:pointer;letter-spacing:.1em}
+.btn-cancel-login:hover{color:rgba(232,223,192,.6)}
+
+/* ── layout ── */
+.wrapper{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 24px 80px}
+header{display:flex;align-items:center;justify-content:space-between;
+  padding:28px 0 24px;border-bottom:1px solid var(--border);margin-bottom:28px;flex-wrap:wrap;gap:14px}
+.logo{font-family:'Orbitron',monospace;font-size:1.05rem;font-weight:900;color:var(--gold);letter-spacing:.1em}
+.logo span{color:var(--neon);font-size:.62rem;letter-spacing:.3em;display:block;margin-top:4px}
+nav{display:flex;gap:12px;flex-wrap:wrap}
+nav a{font-family:'Orbitron',monospace;font-size:.63rem;letter-spacing:.12em;color:var(--neon);
+  text-decoration:none;border:1px solid var(--neon);padding:7px 18px;border-radius:2px;transition:all .2s}
+nav a:hover{background:var(--neon);color:var(--dark);box-shadow:0 0 14px var(--neon)}
+
+/* ── auth banner ── */
+.auth-banner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+  background:rgba(240,192,64,.05);border:1px solid var(--border);border-radius:4px;
+  padding:14px 20px;margin-bottom:24px}
+.auth-status{display:flex;align-items:center;gap:10px;font-size:.82rem;letter-spacing:.1em}
+.auth-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.auth-dot.locked{background:var(--red);box-shadow:0 0 6px var(--red)}
+.auth-dot.unlocked{background:var(--green);box-shadow:0 0 6px var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(57,255,20,.6)}50%{box-shadow:0 0 0 5px rgba(57,255,20,0)}}
+.btn-auth{font-family:'Orbitron',monospace;font-size:.65rem;letter-spacing:.15em;
+  border:none;border-radius:3px;padding:9px 20px;cursor:pointer;font-weight:700;transition:all .2s}
+.btn-auth.unlock{background:var(--gold);color:var(--dark)}
+.btn-auth.unlock:hover{box-shadow:0 0 16px rgba(240,192,64,.5)}
+.btn-auth.lock{background:transparent;color:rgba(232,223,192,.4);border:1px solid rgba(232,223,192,.2);font-size:.6rem;padding:7px 16px}
+.btn-auth.lock:hover{color:var(--red);border-color:var(--red)}
+
+/* ── stats ── */
+.stat-row{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:24px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:4px;
+  padding:16px 22px;flex:1;min-width:130px}
+.stat-label{font-size:.62rem;letter-spacing:.2em;color:rgba(232,223,192,.4);margin-bottom:7px;text-transform:uppercase}
+.stat-val{font-family:'Orbitron',monospace;font-size:1.3rem;color:var(--gold)}
+
+/* ── live badge ── */
+.live-badge{display:inline-flex;align-items:center;gap:7px;font-family:'Orbitron',monospace;
+  font-size:.58rem;letter-spacing:.2em;color:var(--neon)}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--neon);animation:pulse2 1.5s infinite;flex-shrink:0}
+@keyframes pulse2{0%,100%{box-shadow:0 0 0 0 rgba(0,255,231,.6)}50%{box-shadow:0 0 0 5px rgba(0,255,231,0)}}
+
+/* ── panel ── */
+.panel{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:26px;margin-bottom:24px}
+.panel-title{font-family:'Orbitron',monospace;font-size:.67rem;letter-spacing:.28em;
+  color:var(--gold);margin-bottom:20px;text-transform:uppercase}
+
+/* ── add form ── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:11px;align-items:end}
+@media(max-width:700px){.form-grid{grid-template-columns:1fr}}
+label{font-size:.73rem;letter-spacing:.12em;color:rgba(232,223,192,.5);display:block;margin-bottom:5px}
+input,select{width:100%;background:rgba(0,0,0,.35);border:1px solid var(--border);border-radius:3px;
+  color:#e8dfc0;font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:600;padding:10px 13px;
+  outline:none;transition:border-color .2s,box-shadow .2s}
+input:focus,select:focus{border-color:var(--neon);box-shadow:0 0 10px rgba(0,255,231,.2)}
+select option{background:var(--card)}
+input:disabled,select:disabled{opacity:.35;cursor:not-allowed}
+
+/* ── buttons ── */
+.btn{font-family:'Orbitron',monospace;font-size:.68rem;letter-spacing:.12em;border:none;
+  border-radius:3px;padding:11px 20px;cursor:pointer;font-weight:700;transition:all .2s;white-space:nowrap}
+.btn:disabled{opacity:.3;cursor:not-allowed;pointer-events:none}
+.btn-add{background:var(--gold);color:var(--dark)}
+.btn-add:hover:not(:disabled){box-shadow:0 0 16px rgba(240,192,64,.5);opacity:.9}
+.btn-save{background:var(--green);color:var(--dark)}
+.btn-save:hover:not(:disabled){box-shadow:0 0 12px rgba(57,255,20,.4);opacity:.9}
+.btn-del{background:var(--red);color:#fff;padding:7px 13px;font-size:.58rem}
+.btn-del:hover:not(:disabled){box-shadow:0 0 10px rgba(255,45,120,.4);opacity:.9}
+.btn-edit{background:transparent;color:var(--neon);border:1px solid var(--neon);padding:7px 13px;font-size:.58rem}
+.btn-edit:hover:not(:disabled){background:var(--neon);color:var(--dark)}
+
+/* ── filter / table ── */
+.filter-row{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.filter-row label{margin:0}
+.filter-row select,.filter-row input{width:auto}
+.total-count{font-size:.78rem;color:rgba(232,223,192,.4);margin-left:auto;letter-spacing:.1em}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+th{font-family:'Orbitron',monospace;font-size:.58rem;letter-spacing:.2em;color:var(--gold);
+  padding:11px 13px;border-bottom:1px solid var(--border);text-align:left;white-space:nowrap}
+td{padding:10px 13px;border-bottom:1px solid rgba(240,192,64,.08);vertical-align:middle}
+tr:hover td{background:rgba(240,192,64,.03)}
+tr.editing td{background:rgba(0,255,231,.05)}
+.edit-input,.edit-select{background:rgba(0,0,0,.4);border:1px solid var(--neon);border-radius:2px;
+  color:#e8dfc0;font-family:'Rajdhani',sans-serif;font-size:.88rem;padding:5px 10px;width:100%;outline:none}
+.actions{display:flex;gap:7px}
+
+/* ── locked overlay on form ── */
+.locked-hint{display:none;align-items:center;gap:10px;padding:14px 18px;
+  background:rgba(255,45,120,.06);border:1px solid rgba(255,45,120,.2);border-radius:3px;
+  font-size:.8rem;letter-spacing:.08em;color:rgba(232,223,192,.5)}
+.locked-hint.show{display:flex}
+
+/* ── toast ── */
+.toast{position:fixed;bottom:28px;right:28px;z-index:300;background:var(--green);color:var(--dark);
+  font-family:'Orbitron',monospace;font-size:.68rem;letter-spacing:.15em;padding:13px 22px;
+  border-radius:3px;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+.toast.error{background:var(--red);color:#fff}
+</style>
+</head>
+<body>
+
+<!-- ── 操作認証モーダル（ページロード時には表示しない） ── -->
+<div id="loginModal">
+  <div class="login-box">
+    <h2>ADMIN ACCESS</h2>
+    <p>管理者パスワードを入力してください</p>
+    <input class="pw-field" type="password" id="pwInput" placeholder="••••••" autocomplete="off"/>
+    <button class="btn-login" onclick="tryLogin()">ENTER</button>
+    <button class="btn-cancel-login" onclick="closeModal()">キャンセル</button>
+    <p class="login-err" id="loginErr"></p>
+  </div>
+</div>
+
+<div class="wrapper">
+  <header>
+    <div class="logo">CASINO ROYALE <span>ADMIN PANEL</span></div>
+    <nav>
+      <a href="index.html">🏠 TOP</a>
+      <a href="ranking.html">🏆 ランキング</a>
+      <a href="obs.html">📺 OBS</a>
+    </nav>
+  </header>
+
+  <!-- auth banner -->
+  <div class="auth-banner">
+    <div class="auth-status">
+      <span class="auth-dot locked" id="authDot"></span>
+      <span id="authLabel">閲覧モード – 編集するには管理者ログインが必要です</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span class="live-badge"><span class="live-dot"></span>LIVE</span>
+      <button class="btn-auth unlock" id="authBtn" onclick="openModal()">🔓 管理者ログイン</button>
+    </div>
+  </div>
+
+  <!-- stats -->
+  <div class="stat-row">
+    <div class="stat"><div class="stat-label">Total Records</div><div class="stat-val" id="sTotal">–</div></div>
+    <div class="stat"><div class="stat-label">Players</div><div class="stat-val" id="sPlayers">–</div></div>
+    <div class="stat"><div class="stat-label">Total Payout</div><div class="stat-val" id="sPayout">–</div></div>
+    <div class="stat" style="border-color:rgba(0,255,231,.25)">
+      <div class="stat-label">Auth</div>
+      <div class="stat-val" style="font-size:.8rem" id="authStat">🔒 LOCKED</div>
+    </div>
+  </div>
+
+  <!-- add form -->
+  <div class="panel">
+    <p class="panel-title">▸ 新規登録 / ADD RECORD</p>
+    <div class="locked-hint" id="addHint">🔒 管理者ログインすると追加できます</div>
+    <div class="form-grid" id="addForm">
+      <div><label>ニックネーム</label><input type="text" id="fNick" placeholder="PLAYER_NAME" maxlength="20" disabled/></div>
+      <div><label>ゲーム</label>
+        <select id="fGame" disabled>
+          <option>ポーカー</option><option>チンチロ</option>
+          <option>ブラックジャック</option><option>競馬</option>
+        </select>
+      </div>
+      <div><label>獲得金額 (円)</label><input type="number" id="fAmount" placeholder="50000" min="-999999" max="9999999" disabled/></div>
+      <div><button class="btn btn-add" id="btnAdd" onclick="handleAdd()" disabled>＋ ADD</button></div>
+    </div>
+  </div>
+
+  <!-- records table -->
+  <div class="panel">
+    <p class="panel-title">▸ 全レコード / ALL RECORDS</p>
+    <div class="filter-row">
+      <label>ゲーム：</label>
+      <select id="filterGame" onchange="applyFilter()">
+        <option value="">全て</option>
+        <option>ポーカー</option><option>チンチロ</option>
+        <option>ブラックジャック</option><option>競馬</option>
+      </select>
+      <label style="margin-left:10px">検索：</label>
+      <input type="text" id="filterNick" placeholder="ニックネーム" oninput="applyFilter()" style="width:150px"/>
+      <span class="total-count" id="totalCount"></span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>ニックネーム</th><th>ゲーム</th><th>獲得金額</th><th>操作</th></tr></thead>
+        <tbody id="recordsBody">
+          <tr><td colspan="5" style="text-align:center;color:rgba(232,223,192,.3);padding:40px;
+            letter-spacing:.2em;font-family:'Orbitron',monospace;font-size:.7rem">CONNECTING...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="data.js"></script>
+<script>
+// ── 認証状態 ──
+let isAuthed=false;
+let allRecords=[];
+let editingId=null;
+const ICONS={'ポーカー':'🃏','チンチロ':'🎲','ブラックジャック':'🂡','競馬':'🏇'};
+
+// ── モーダル ──
+function openModal(){
+  document.getElementById('loginModal').classList.add('open');
+  document.getElementById('pwInput').value='';
+  document.getElementById('loginErr').textContent='';
+  setTimeout(()=>document.getElementById('pwInput').focus(),100);
+}
+function closeModal(){document.getElementById('loginModal').classList.remove('open')}
+document.getElementById('pwInput').addEventListener('keydown',e=>{if(e.key==='Enter')tryLogin()});
+// モーダル背景クリックで閉じる
+document.getElementById('loginModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal()});
+
+function tryLogin(){
+  const pw=document.getElementById('pwInput').value;
+  if(checkPassword(pw)){
+    isAuthed=true;
+    closeModal();
+    updateAuthUI();
+    showToast('✓ 管理者ログイン成功');
+  } else {
+    document.getElementById('loginErr').textContent='❌ パスワードが違います';
+    document.getElementById('pwInput').value='';
+  }
+}
+
+function logout(){
+  isAuthed=false;
+  editingId=null;
+  updateAuthUI();
+  applyFilter();
+  showToast('ログアウトしました','error');
+}
+
+function updateAuthUI(){
+  const dot=document.getElementById('authDot');
+  const label=document.getElementById('authLabel');
+  const authBtn=document.getElementById('authBtn');
+  const authStat=document.getElementById('authStat');
+  // form inputs
+  ['fNick','fGame','fAmount','btnAdd'].forEach(id=>{
+    document.getElementById(id).disabled=!isAuthed;
+  });
+  document.getElementById('addHint').classList.toggle('show',!isAuthed);
+  if(isAuthed){
+    dot.className='auth-dot unlocked';
+    label.textContent='管理者モード – 追加・編集・削除が可能です';
+    authBtn.textContent='🔐 ログアウト';
+    authBtn.className='btn-auth lock';
+    authBtn.onclick=logout;
+    authStat.textContent='🔓 UNLOCKED';
+    authStat.style.color='var(--green)';
+  } else {
+    dot.className='auth-dot locked';
+    label.textContent='閲覧モード – 編集するには管理者ログインが必要です';
+    authBtn.textContent='🔓 管理者ログイン';
+    authBtn.className='btn-auth unlock';
+    authBtn.onclick=openModal;
+    authStat.textContent='🔒 LOCKED';
+    authStat.style.color='';
+  }
+  applyFilter();
+}
+
+// ── toast ──
+function showToast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast'+(type?' '+type:'');
+  void t.offsetWidth;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+// ── stats ──
+function renderStats(){
+  const players=new Set(allRecords.map(r=>r.nickname)).size;
+  const sum=allRecords.reduce((a,r)=>a+r.amount,0);
+  document.getElementById('sTotal').textContent=allRecords.length;
+  document.getElementById('sPlayers').textContent=players;
+  document.getElementById('sPayout').textContent=fmt(sum);
+}
+
+// ── table ──
+function applyFilter(){
+  const gf=document.getElementById('filterGame').value;
+  const nf=document.getElementById('filterNick').value.toLowerCase();
+  const rows=allRecords.filter(r=>
+    (gf===''||r.game===gf)&&(nf===''||r.nickname.toLowerCase().includes(nf))
+  );
+  document.getElementById('totalCount').textContent=`${rows.length} 件`;
+  document.getElementById('recordsBody').innerHTML=rows.length===0
+    ? `<tr><td colspan="5" style="text-align:center;color:rgba(232,223,192,.3);padding:28px;letter-spacing:.15em">NO RECORDS</td></tr>`
+    : rows.map((r,i)=>{
+        if(r.id===editingId) return `<tr class="editing">
+          <td>${i+1}</td>
+          <td><input class="edit-input" id="en" value="${r.nickname}" maxlength="20"/></td>
+          <td><select class="edit-select" id="eg">
+            ${['ポーカー','チンチロ','ブラックジャック','競馬'].map(g=>`<option${g===r.game?' selected':''}>${g}</option>`).join('')}
+          </select></td>
+          <td><input class="edit-input" id="ea" type="number" value="${r.amount}"/></td>
+          <td class="actions">
+            <button class="btn btn-save" onclick="saveEdit('${r.id}')">保存</button>
+            <button class="btn btn-edit" onclick="cancelEdit()">ｷｬﾝｾﾙ</button>
+          </td>
+        </tr>`;
+        // 操作列：未認証は非表示
+        const ops=isAuthed
+          ? `<button class="btn btn-edit" onclick="startEdit('${r.id}')">編集</button>
+             <button class="btn btn-del"  onclick="handleDelete('${r.id}')">削除</button>`
+          : `<span style="color:rgba(232,223,192,.2);font-size:.72rem;letter-spacing:.08em">🔒 要ログイン</span>`;
+        return `<tr>
+          <td style="color:rgba(232,223,192,.4);font-size:.78rem">${i+1}</td>
+          <td style="font-weight:600">${r.nickname}</td>
+          <td>${ICONS[r.game]||''} ${r.game}</td>
+          <td style="font-family:'Orbitron',monospace;color:${r.amount>=0?'#00ffe7':'#ff2d78'};font-size:.83rem">${fmt(r.amount)}</td>
+          <td class="actions">${ops}</td>
+        </tr>`;
+      }).join('');
+}
+
+// ── CRUD ──
+async function handleAdd(){
+  if(!isAuthed){openModal();return}
+  const nick=document.getElementById('fNick').value.trim();
+  const game=document.getElementById('fGame').value;
+  const amount=Number(document.getElementById('fAmount').value);
+  if(!nick){alert('ニックネームを入力してください');return}
+  if(!amount&&amount!==0){alert('金額を入力してください');return}
+  await addRecord(nick,game,amount);
+  document.getElementById('fNick').value='';
+  document.getElementById('fAmount').value='';
+  showToast('✓ 追加しました');
+}
+
+async function handleDelete(id){
+  if(!isAuthed){openModal();return}
+  if(!confirm('このレコードを削除しますか？'))return;
+  await deleteRecord(id);showToast('✓ 削除しました');
+}
+function startEdit(id){if(!isAuthed){openModal();return}editingId=id;applyFilter()}
+function cancelEdit(){editingId=null;applyFilter()}
+async function saveEdit(id){
+  if(!isAuthed)return;
+  const nick=document.getElementById('en').value.trim();
+  const game=document.getElementById('eg').value;
+  const amount=Number(document.getElementById('ea').value);
+  if(!nick){alert('ニックネームを入力してください');return}
+  await updateRecord(id,nick,game,amount);
+  editingId=null;showToast('✓ 保存しました');
+}
+
+// ── リアルタイム購読（認証不要・即起動） ──
+onRecordsChange(records=>{
+  allRecords=records.sort((a,b)=>b.createdAt-a.createdAt);
+  renderStats();
+  applyFilter();
+});
+</script>
+</body>
+</html>
