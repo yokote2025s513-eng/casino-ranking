@@ -21,7 +21,8 @@ body::before{content:'';position:fixed;inset:0;z-index:0;
 
 /* ── ログインモーダル（操作時のみ表示） ── */
 #loginModal{position:fixed;inset:0;z-index:200;background:rgba(5,8,15,.92);
-  display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
+  display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
+#loginModal.open{display:flex}
 .login-box{background:var(--card);border:1px solid var(--gold);border-radius:6px;
   padding:44px 40px;text-align:center;width:min(360px,90vw);box-shadow:0 0 40px rgba(240,192,64,.2)}
 .login-box h2{font-family:'Orbitron',monospace;font-size:.95rem;letter-spacing:.3em;color:var(--gold);margin-bottom:6px}
