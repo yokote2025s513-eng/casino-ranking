@@ -4,15 +4,24 @@
 // ============================================================
 
 // ▼▼▼ ここを Firebase コンソールの設定値に書き換える ▼▼▼
-const FIREBASE_CONFIG = {
-  apiKey:            "YOUR_API_KEY",
-  authDomain:        "YOUR_PROJECT.firebaseapp.com",
-  databaseURL:       "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
-  projectId:         "YOUR_PROJECT",
-  storageBucket:     "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId:             "YOUR_APP_ID"
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyD_T643ftJeU9r5CJJ5hMYQ6eoGRvNIvDY",
+  authDomain: "casino-ranking.firebaseapp.com",
+  databaseURL: "https://casino-ranking-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "casino-ranking",
+  storageBucket: "casino-ranking.firebasestorage.app",
+  messagingSenderId: "889934164094",
+  appId: "1:889934164094:web:9278ca45e10950fab7282f"
 };
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
 // ▲▲▲ ここまで ▲▲▲
 
 const GAMES = ['ポーカー', 'チンチロ', 'ブラックジャック', '競馬'];
