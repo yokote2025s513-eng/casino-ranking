@@ -284,6 +284,7 @@ function tryLogin(){
     isAuthed=true;
     closeModal();
     updateAuthUI();
+    startListening();
     showToast('✓ 管理者ログイン成功');
   } else {
     document.getElementById('loginErr').textContent='❌ パスワードが違います';
@@ -497,14 +498,18 @@ async function handleDeleteAll(){
 }
 
 // ── リアルタイム購読（認証不要・即起動） ──
-if(!isAuthed) document.getElementById('loginModal').classList.add('open');
+// ── ログイン後にDB購読開始 ──
+function startListening(){
+  onRecordsChange(records=>{
+    allRecords=records.sort((a,b)=>b.createdAt-a.createdAt);
+    renderStats();
+    applyFilter();
+    renderPlayerChips();
+  });
+}
 
-onRecordsChange(records=>{
-  allRecords=records.sort((a,b)=>b.createdAt-a.createdAt);
-  renderStats();
-  applyFilter();
-  renderPlayerChips();
-});
+// ページロード時はモーダルを表示（DB購読はログイン後）
+document.getElementById('loginModal').classList.add('open');
 </script>
 </body>
 </html>
