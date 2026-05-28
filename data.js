@@ -1,32 +1,20 @@
 // ============================================================
 //  Casino Ranking – Firebase Realtime Database 共有データ層
-//  ★ FIREBASE_CONFIG を自分の設定に書き換えること
 // ============================================================
 
-// ▼▼▼ ここを Firebase コンソールの設定値に書き換える ▼▼▼
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyD_T643ftJeU9r5CJJ5hMYQ6eoGRvNIvDY",
-  authDomain: "casino-ranking.firebaseapp.com",
-  databaseURL: "https://casino-ranking-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "casino-ranking",
-  storageBucket: "casino-ranking.firebasestorage.app",
+const FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyD_T643ftJeU9r5CJJ5hMYQ6eoGRvNIvDY",
+  authDomain:        "casino-ranking.firebaseapp.com",
+  databaseURL:       "https://casino-ranking-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:         "casino-ranking",
+  storageBucket:     "casino-ranking.firebasestorage.app",
   messagingSenderId: "889934164094",
-  appId: "1:889934164094:web:9278ca45e10950fab7282f"
+  appId:             "1:889934164094:web:9278ca45e10950fab7282f"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-// ▲▲▲ ここまで ▲▲▲
-
 const GAMES = ['ポーカー', 'チンチロ', 'ブラックジャック', '競馬'];
-const ADMIN_PASSWORD = 'admin'; // ← パスワード変更はここ
-const DB_PATH = 'records';      // Realtime DB のルートパス
+const ADMIN_PASSWORD = 'admin';
+const DB_PATH = 'records';
 
 // ── Firebase 初期化 ──────────────────────────────────────────
 let _db = null;
@@ -43,8 +31,6 @@ function dbRef() {
 }
 
 // ── CRUD ─────────────────────────────────────────────────────
-// Record shape: { id, nickname, game, amount, createdAt }
-
 function addRecord(nickname, game, amount) {
   const newRef = dbRef().push();
   return newRef.set({
@@ -65,7 +51,6 @@ function deleteRecord(id) {
 }
 
 // ── リアルタイム購読 ─────────────────────────────────────────
-// callback(records[]) を DB 更新のたびに呼ぶ
 function onRecordsChange(callback) {
   dbRef().on('value', snap => {
     const raw = snap.val() || {};
