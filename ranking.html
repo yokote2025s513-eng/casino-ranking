@@ -128,8 +128,8 @@ nav a:hover{background:var(--neon);color:var(--dark);box-shadow:0 0 14px var(--n
   <!-- ranking tabs -->
   <div class="panel">
     <div class="tab-bar" id="tabBar">
-      <div class="tab active" data-game="ALL"        onclick="switchTab(this)">🌐 総合</div>
-      <div class="tab" data-game="ポーカー"          onclick="switchTab(this)">🃏 ポーカー</div>
+      
+      <div class="tab active" data-game="ポーカー" onclick="switchTab(this)">🃏 ポーカー</div>
       <div class="tab" data-game="チンチロ"          onclick="switchTab(this)">🎲 チンチロ</div>
       <div class="tab" data-game="ブラックジャック"  onclick="switchTab(this)">🂡 ブラックジャック</div>
       <div class="tab" data-game="競馬"              onclick="switchTab(this)">🏇 競馬</div>
@@ -143,7 +143,7 @@ nav a:hover{background:var(--neon);color:var(--dark);box-shadow:0 0 14px var(--n
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script src="data.js"></script>
 <script>
-let currentGame='ALL';
+let currentGame='ポーカー';
 let latestRecords=[];
 
 // ── realtime ──
@@ -160,10 +160,11 @@ function doSearch(){
   const nick=document.getElementById('searchInput').value.trim();
   const el=document.getElementById('searchResult');
   if(!nick){el.innerHTML='';return}
-  const allData=aggregateAll(latestRecords);
-  const found=allData.find(d=>d.nickname.toLowerCase()===nick.toLowerCase());
+  const found=GAMES.some(game=>{
+    const gd=aggregateByGame(latestRecords,game);
+    return gd.find(d=>d.nickname.toLowerCase()===nick.toLowerCase());
+  });
   if(!found){el.innerHTML=`<p class="not-found">「${nick}」は見つかりませんでした</p>`;return}
-  const allRank=allData.findIndex(d=>d.nickname.toLowerCase()===nick.toLowerCase())+1;
   const gameItems=GAMES.map(game=>{
     const gd=aggregateByGame(latestRecords,game);
     const idx=gd.findIndex(d=>d.nickname.toLowerCase()===nick.toLowerCase());
@@ -175,13 +176,7 @@ function doSearch(){
     </div>`;
   }).join('');
   el.innerHTML=`<div class="result-card show">
-    <div class="result-nick">👤 ${found.nickname}</div>
-    <div style="margin-bottom:16px;font-size:.95rem">
-      <span style="color:rgba(232,223,192,.5);letter-spacing:.1em">総合順位：</span>
-      <span style="font-family:'Orbitron',monospace;font-size:1.4rem;color:var(--gold2)">${allRank}</span>
-      <span style="color:rgba(232,223,192,.5)"> 位 / ${allData.length}人</span>
-      <span style="margin-left:20px;font-family:'Orbitron',monospace;color:var(--neon)">${fmt(found.total)}</span>
-    </div>
+    <div class="result-nick">👤 ${nick}</div>
     <div class="result-grid">${gameItems}</div>
   </div>`;
 }
@@ -194,7 +189,7 @@ function switchTab(el){
 }
 
 function renderRanking(){
-  const data=currentGame==='ALL'?aggregateAll(latestRecords):aggregateByGame(latestRecords,currentGame);
+  const data=aggregateByGame(latestRecords,currentGame);
   const max=data[0]?.total||1;
   if(data.length===0){
     document.getElementById('rankingContent').innerHTML='<p style="text-align:center;color:rgba(232,223,192,.3);padding:40px 0;letter-spacing:.2em">NO DATA</p>';return;
