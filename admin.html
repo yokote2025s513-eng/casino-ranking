@@ -283,7 +283,6 @@ function tryLogin(){
   if(checkPassword(pw)){
     isAuthed=true;
     closeModal();
-    updateAuthUI();
     startListening();
     showToast('✓ 管理者ログイン成功');
   } else {
@@ -502,8 +501,8 @@ async function handleDeleteAll(){
 function startListening(){
   onRecordsChange(records=>{
     allRecords=records.sort((a,b)=>b.createdAt-a.createdAt);
+    updateAuthUI();
     renderStats();
-    applyFilter();
     renderPlayerChips();
   });
 }
