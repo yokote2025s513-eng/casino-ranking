@@ -64,6 +64,14 @@ nav a:hover{background:var(--neon);color:var(--dark);box-shadow:0 0 14px var(--n
 .result-item .rg-rank .pos{font-size:2rem;color:var(--gold2);line-height:1}
 .result-item .rg-amount{font-family:'Orbitron',monospace;font-size:.85rem;color:var(--neon)}
 .not-found{color:var(--red);font-size:.9rem;letter-spacing:.1em;margin-top:14px}
+.ac-wrap{position:relative;flex:1;min-width:200px}
+.ac-list{position:absolute;top:100%;left:0;right:0;z-index:50;
+  background:#0e1828;border:1px solid var(--border);border-top:none;border-radius:0 0 3px 3px;
+  max-height:220px;overflow-y:auto}
+.ac-item{padding:10px 16px;cursor:pointer;font-size:.95rem;font-weight:600;
+  border-bottom:1px solid rgba(240,192,64,.07);transition:background .15s}
+.ac-item:last-child{border-bottom:none}
+.ac-item:hover,.ac-item.active{background:rgba(240,192,64,.08);color:var(--gold)}
 
 /* tabs */
 .tab-bar{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--border);margin-bottom:24px}
@@ -111,15 +119,17 @@ nav a:hover{background:var(--neon);color:var(--dark);box-shadow:0 0 14px var(--n
   <nav>
     <a href="index.html">🏠 TOP</a>
     <a href="ranking.html">🏆 ランキング</a>
-    <a href="obs.html">📺 OBS</a>
     <a href="admin.html">⚙ 管理者</a>
   </nav>
 
   <!-- self search -->
   <div class="search-panel">
     <h2>▸ MY RANK – 自分の順位を調べる</h2>
-    <div class="search-row">
-      <input type="text" id="searchInput" placeholder="ニックネームを入力…" maxlength="20"/>
+    <div class="search-row" style="align-items:flex-start">
+      <div class="ac-wrap">
+        <input type="text" id="searchInput" placeholder="ニックネームを入力…" maxlength="20" autocomplete="off"/>
+        <div class="ac-list" id="acList" style="display:none"></div>
+      </div>
       <button class="btn-search" onclick="doSearch()">SEARCH</button>
     </div>
     <div id="searchResult"></div>
@@ -148,6 +158,7 @@ let latestRecords=[];
 
 // ── realtime ──
 onRecordsChange(records=>{
+  latestNicks=[...new Set(records.map(r=>r.nickname))].sort();
   latestRecords=records;
   renderRanking();
   // 検索中なら即再検索
@@ -172,7 +183,7 @@ function doSearch(){
     return `<div class="result-item">
       <div class="rg-name">${game}</div>
       <div class="rg-rank"><span class="pos">${idx+1}</span> 位 / ${gd.length}人</div>
-      <div class="rg-amount">${fmt(gd[idx].total)}</div>
+      <div class="rg-amount" style="${gd[idx].total<0?'color:#ff2d78':''}">${gd[idx].total<0?'▼ 負債 ':''} ${fmt(gd[idx].total)}</div>
     </div>`;
   }).join('');
   el.innerHTML=`<div class="result-card show">
@@ -180,7 +191,45 @@ function doSearch(){
     <div class="result-grid">${gameItems}</div>
   </div>`;
 }
-document.getElementById('searchInput').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch()});
+// ── オートコンプリート ──
+let acIndex=-1;
+let latestNicks=[];
+
+function updateAC(){
+  const val=document.getElementById('searchInput').value.trim().toLowerCase();
+  const list=document.getElementById('acList');
+  if(!val){list.style.display='none';return}
+  const matches=latestNicks.filter(n=>n.toLowerCase().includes(val));
+  if(!matches.length){list.style.display='none';return}
+  acIndex=-1;
+  list.innerHTML=matches.map((n,i)=>
+    `<div class="ac-item" data-i="${i}" onmousedown="pickAC('${n}')">${n}</div>`
+  ).join('');
+  list.style.display='block';
+}
+
+function pickAC(name){
+  document.getElementById('searchInput').value=name;
+  document.getElementById('acList').style.display='none';
+  doSearch();
+}
+
+document.getElementById('searchInput').addEventListener('input',updateAC);
+document.getElementById('searchInput').addEventListener('keydown',e=>{
+  const list=document.getElementById('acList');
+  const items=list.querySelectorAll('.ac-item');
+  if(e.key==='ArrowDown'){e.preventDefault();acIndex=Math.min(acIndex+1,items.length-1);items.forEach((el,i)=>el.classList.toggle('active',i===acIndex));}
+  else if(e.key==='ArrowUp'){e.preventDefault();acIndex=Math.max(acIndex-1,-1);items.forEach((el,i)=>el.classList.toggle('active',i===acIndex));}
+  else if(e.key==='Enter'){
+    if(acIndex>=0&&items[acIndex]){pickAC(items[acIndex].textContent);}
+    else doSearch();
+    list.style.display='none';
+  }
+  else if(e.key==='Escape'){list.style.display='none';}
+});
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.ac-wrap')) document.getElementById('acList').style.display='none';
+});
 
 // ── tabs ──
 function switchTab(el){

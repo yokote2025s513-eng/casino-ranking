@@ -167,7 +167,7 @@ function buildCard(game,records){
       <div class="bar-bg" style="width:${pct}%"></div>
       <div class="pos ${pc}">${label}</div>
       <div class="nick">${d.nickname}</div>
-      <div class="amt">${fmt(d.total)}</div>
+      <div class="amt" style="${d.total<0?'color:#ff2d78':''}">${d.total<0?'▼ ':''} ${fmt(d.total)}</div>
     </div>`;
   }).join(''):'<div class="no-data">NO DATA</div>';
 

@@ -211,7 +211,7 @@ tr.editing td{background:rgba(0,255,231,.05)}
           <option>ブラックジャック</option><option>競馬</option>
         </select>
       </div>
-      <div><label>獲得金額</label><input type="number" id="fAmount" placeholder="50000" min="-999999" max="9999999" disabled/></div>
+      <div><label>獲得金額 / 負債 <span style="font-size:.65rem;color:rgba(232,223,192,.4)">(負債はマイナスで入力)</span></label><input type="number" id="fAmount" placeholder="例: 50000 / -10000" min="-9999999" max="9999999" disabled/></div>
       <div><button class="btn btn-add" id="btnAdd" onclick="handleAdd()" disabled>＋ ADD</button></div>
     </div>
   </div>
@@ -243,7 +243,7 @@ tr.editing td{background:rgba(0,255,231,.05)}
     </div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>#</th><th>ニックネーム</th><th>ゲーム</th><th>獲得金額</th><th>操作</th></tr></thead>
+        <thead><tr><th>#</th><th>ニックネーム</th><th>ゲーム</th><th>獲得金額 / 負債</th><th>操作</th></tr></thead>
         <tbody id="recordsBody">
           <tr><td colspan="5" style="text-align:center;color:rgba(232,223,192,.3);padding:40px;
             letter-spacing:.2em;font-family:'Orbitron',monospace;font-size:.7rem">CONNECTING...</td></tr>
@@ -408,7 +408,7 @@ function applyFilter(){
           <td style="color:rgba(232,223,192,.4);font-size:.78rem">${i+1}</td>
           <td style="font-weight:600">${r.nickname}</td>
           <td>${ICONS[r.game]||''} ${r.game}</td>
-          <td style="font-family:'Orbitron',monospace;color:${r.amount>=0?'#00ffe7':'#ff2d78'};font-size:.83rem">${fmt(r.amount)}</td>
+          <td style="font-family:'Orbitron',monospace;color:${r.amount>=0?'#00ffe7':'#ff2d78'};font-size:.83rem">${r.amount<0?'▼ 負債 '+fmt(r.amount):fmt(r.amount)}</td>
           <td class="actions">${ops}</td>
         </tr>`;
       }).join('');
