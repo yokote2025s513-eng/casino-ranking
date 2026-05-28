@@ -180,7 +180,7 @@ function render(records){
 
 // リアルタイム購読
 onRecordsChange(records=>{
-  if(records.length===0){ seedIfEmpty(); return; }
+
   render(records);
 });
 </script>

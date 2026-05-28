@@ -33,14 +33,15 @@ function dbRef() {
 // ── CRUD ─────────────────────────────────────────────────────
 function addRecord(nickname, game, amount) {
   const newRef = dbRef().push();
-  return newRef.set({
-    id: newRef.key,
-    nickname,
-    game,
-    amount: Number(amount),
-    createdAt: Date.now()
-  });
+  return newRef.set({ id: newRef.key, nickname, game, amount: Number(amount), createdAt: Date.now() });
 }
+
+// Undo用：pushキーを返す
+function addRecordWithRef(nickname, game, amount) {
+  const newRef = dbRef().push();
+  return newRef.set({ id: newRef.key, nickname, game, amount: Number(amount), createdAt: Date.now() }).then(() => newRef);
+}
+
 
 function updateRecord(id, nickname, game, amount) {
   return dbRef().child(id).update({ nickname, game, amount: Number(amount) });
@@ -78,23 +79,8 @@ function aggregateAll(records) {
     .sort((a, b) => b.total - a.total);
 }
 
-// ── デモデータ投入（DB が空の時だけ） ────────────────────────
-async function seedIfEmpty() {
-  const snap = await dbRef().once('value');
-  if (snap.exists()) return;
-  const names = ['VIPER', 'QUEEN_B', 'SHADOW', 'NEON_K', 'BLAZE', 'ORACLE', 'CIPHER', 'LUXE'];
-  const promises = [];
-  GAMES.forEach(game => {
-    names.forEach(n => {
-      const amount = Math.floor(Math.random() * 90000) + 10000;
-      promises.push(addRecord(n, game, amount));
-    });
-  });
-  await Promise.all(promises);
-}
-
 // ── パスワード ────────────────────────────────────────────────
 function checkPassword(pw) { return pw === ADMIN_PASSWORD; }
 
 // ── 通貨フォーマット ──────────────────────────────────────────
-function fmt(n) { return '¥' + Number(n).toLocaleString(); }
+function fmt(n) { return '$' + Number(n).toLocaleString(); }
