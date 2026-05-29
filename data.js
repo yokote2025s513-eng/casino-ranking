@@ -11,7 +11,7 @@ const FIREBASE_CONFIG = {
   appId:             "1:889934164094:web:9278ca45e10950fab7282f"
 };
 const GAMES = ['ポーカー', 'チンチロ', 'ブラックジャック', '競馬'];
-const ADMIN_PASSWORD = 'admin';
+const ADMIN_PASSWORD = 'fukashi';
 const DB_PATH = 'records';
 
 // ── Firebase 初期化 ──────────────────────────────────────────
