@@ -3,264 +3,200 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>CASINO ROYALE – 予約・待ち状況</title>
+<title>CASINO ROYALE – 予約・受付</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --gold:#f0c040;--gold2:#ffd700;--neon:#00ffe7;--dark:#05080f;
-  --card:#0b1120;--border:rgba(240,192,64,.25);--glow:0 0 18px rgba(240,192,64,.5);
-  --danger:#ff4c6a;
-}
+:root{--gold:#f0c040;--gold2:#ffd700;--neon:#00ffe7;--dark:#05080f;--card:#0b1120;--border:rgba(240,192,64,.25);--glow:0 0 18px rgba(240,192,64,.5);--danger:#ff4c6a}
 html,body{min-height:100vh}
 body{background:var(--dark);color:#e8dfc0;font-family:'Rajdhani',sans-serif;overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;z-index:0;
-  background:linear-gradient(rgba(0,255,231,.04) 1px,transparent 1px),
-             linear-gradient(90deg,rgba(0,255,231,.04) 1px,transparent 1px);
-  background-size:60px 60px;pointer-events:none}
+body::before{content:'';position:fixed;inset:0;z-index:0;background:linear-gradient(rgba(0,255,231,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,231,.04) 1px,transparent 1px);background-size:60px 60px;pointer-events:none}
 #stars{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
-#stars span{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff;
-  opacity:0;animation:twinkle 4s infinite}
+#stars span{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff;opacity:0;animation:twinkle 4s infinite}
 @keyframes twinkle{0%,100%{opacity:0}50%{opacity:.8}}
-.wrapper{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:0 20px 80px}
+.wrapper{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:0 20px 80px}
 
-header{text-align:center;padding:48px 0 28px}
-.logo-sub{font-family:'Orbitron',monospace;font-size:.65rem;letter-spacing:.5em;color:var(--neon);opacity:.8;margin-bottom:10px}
-h1{font-family:'Orbitron',monospace;font-size:clamp(1.8rem,5vw,3.8rem);font-weight:900;
-  background:linear-gradient(135deg,var(--gold2),var(--gold),#c8860a);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  filter:drop-shadow(0 0 18px rgba(240,192,64,.6));letter-spacing:.05em}
-.subtitle{margin-top:10px;font-size:.9rem;letter-spacing:.35em;color:rgba(232,223,192,.5)}
-.header-deco{display:flex;align-items:center;justify-content:center;gap:20px;margin-top:18px}
-.header-deco span{display:inline-block;height:1px;width:100px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
-.suit{font-size:1.2rem;color:var(--gold);filter:drop-shadow(0 0 6px var(--gold))}
+header{text-align:center;padding:44px 0 24px}
+.logo-sub{font-family:'Orbitron',monospace;font-size:.65rem;letter-spacing:.5em;color:var(--neon);opacity:.8;margin-bottom:8px}
+h1{font-family:'Orbitron',monospace;font-size:clamp(1.8rem,5vw,3.5rem);font-weight:900;background:linear-gradient(135deg,var(--gold2),var(--gold),#c8860a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 16px rgba(240,192,64,.55));letter-spacing:.05em}
+.subtitle{margin-top:8px;font-size:.88rem;letter-spacing:.35em;color:rgba(232,223,192,.45)}
+.header-deco{display:flex;align-items:center;justify-content:center;gap:18px;margin-top:14px}
+.header-deco span{display:inline-block;height:1px;width:90px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.suit{font-size:1.1rem;color:var(--gold);filter:drop-shadow(0 0 5px var(--gold))}
 
-nav{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:36px}
-nav a{font-family:'Orbitron',monospace;font-size:.62rem;letter-spacing:.12em;color:var(--neon);
-  text-decoration:none;border:1px solid var(--neon);padding:7px 16px;border-radius:2px;
-  transition:all .25s;text-transform:uppercase}
-nav a:hover,nav a.active{background:var(--neon);color:var(--dark);box-shadow:0 0 20px var(--neon)}
+nav{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:30px}
+nav a{font-family:'Orbitron',monospace;font-size:.62rem;letter-spacing:.12em;color:var(--neon);text-decoration:none;border:1px solid var(--neon);padding:7px 16px;border-radius:2px;transition:all .25s}
+nav a:hover,nav a.active{background:var(--neon);color:var(--dark);box-shadow:0 0 18px var(--neon)}
 
-.section-title{font-family:'Orbitron',monospace;font-size:.6rem;letter-spacing:.4em;color:var(--neon);
-  text-transform:uppercase;text-align:center;margin-bottom:24px;opacity:.9}
-.live-badge{display:inline-flex;align-items:center;gap:8px;font-family:'Orbitron',monospace;
-  font-size:.58rem;letter-spacing:.2em;color:var(--neon);margin-bottom:14px;justify-content:center;width:100%}
-.live-dot{width:7px;height:7px;border-radius:50%;background:var(--neon);animation:pulse 1.5s infinite;flex-shrink:0}
+.section-title{font-family:'Orbitron',monospace;font-size:.6rem;letter-spacing:.38em;color:var(--neon);text-transform:uppercase;text-align:center;margin-bottom:20px}
+.live-badge{display:inline-flex;align-items:center;gap:8px;font-family:'Orbitron',monospace;font-size:.56rem;letter-spacing:.2em;color:var(--neon);margin-bottom:12px;justify-content:center;width:100%}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--neon);animation:pulse 1.5s infinite}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(0,255,231,.6)}50%{box-shadow:0 0 0 6px rgba(0,255,231,0)}}
 
 /* My Ticket Panel */
-.my-ticket-panel{background:var(--card);border:1px solid var(--gold);border-radius:4px;
-  padding:20px 24px;margin-bottom:32px;position:relative;overflow:hidden;display:none}
+.my-ticket-panel{background:var(--card);border:1px solid var(--gold);border-radius:4px;padding:18px 22px;margin-bottom:28px;position:relative;overflow:hidden;display:none}
 .my-ticket-panel.show{display:block}
-.my-ticket-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
-  background:linear-gradient(90deg,transparent,var(--gold2),transparent)}
-.mtp-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-.mtp-title{font-family:'Orbitron',monospace;font-size:.62rem;letter-spacing:.25em;color:var(--gold)}
-.mtp-status{font-family:'Orbitron',monospace;font-size:.56rem;letter-spacing:.12em;padding:3px 10px;border-radius:2px}
-.mtp-status.waiting{background:rgba(240,192,64,.1);color:var(--gold);border:1px solid rgba(240,192,64,.3)}
-.mtp-status.called{background:rgba(0,255,231,.15);color:var(--neon);border:1px solid rgba(0,255,231,.4);animation:callpulse 1s infinite}
+.my-ticket-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold2),transparent)}
+.mtp-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.mtp-label{font-family:'Orbitron',monospace;font-size:.6rem;letter-spacing:.22em;color:var(--gold)}
+.mtp-badge{font-family:'Orbitron',monospace;font-size:.54rem;letter-spacing:.1em;padding:3px 9px;border-radius:2px}
+.mtp-badge.waiting{background:rgba(240,192,64,.1);color:var(--gold);border:1px solid rgba(240,192,64,.3)}
+.mtp-badge.called{background:rgba(0,255,231,.15);color:var(--neon);border:1px solid rgba(0,255,231,.4);animation:callpulse 1s infinite}
 @keyframes callpulse{0%,100%{box-shadow:0 0 0 0 rgba(0,255,231,.4)}50%{box-shadow:0 0 0 8px rgba(0,255,231,0)}}
-.mtp-body{display:flex;align-items:center;gap:20px}
-.mtp-num{font-family:'Orbitron',monospace;font-size:3.2rem;font-weight:900;line-height:1;
-  background:linear-gradient(135deg,var(--gold2),var(--gold));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;flex-shrink:0}
-.mtp-details{flex:1}
-.mtp-game{font-size:1rem;font-weight:600;color:var(--neon);letter-spacing:.08em}
-.mtp-wait{font-family:'Orbitron',monospace;font-size:.68rem;color:rgba(232,223,192,.5);margin-top:6px;letter-spacing:.06em}
-.mtp-pos{font-size:.78rem;color:rgba(232,223,192,.4);margin-top:4px}
-.called-alert{background:rgba(0,255,231,.08);border:1px solid rgba(0,255,231,.3);border-radius:3px;
-  padding:12px;text-align:center;margin-top:12px;display:none}
-.called-alert.show{display:block;animation:callpulse 1.5s infinite}
-.called-alert p{font-family:'Orbitron',monospace;font-size:.68rem;letter-spacing:.15em;color:var(--neon)}
-.btn-cancel-ticket{font-family:'Orbitron',monospace;font-size:.55rem;letter-spacing:.1em;
-  color:var(--danger);background:transparent;border:1px solid rgba(255,76,106,.3);
-  padding:6px 14px;border-radius:2px;cursor:pointer;transition:all .2s;margin-top:12px}
+.mtp-body{display:flex;align-items:center;gap:18px}
+.mtp-num{font-family:'Orbitron',monospace;font-size:3rem;font-weight:900;line-height:1;background:linear-gradient(135deg,var(--gold2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;flex-shrink:0}
+.mtp-game{font-size:.95rem;font-weight:600;color:var(--neon);letter-spacing:.08em}
+.mtp-wait{font-family:'Orbitron',monospace;font-size:.65rem;color:rgba(232,223,192,.45);margin-top:5px}
+.mtp-pos{font-size:.76rem;color:rgba(232,223,192,.38);margin-top:3px}
+.called-alert{background:rgba(0,255,231,.07);border:1px solid rgba(0,255,231,.3);border-radius:3px;padding:10px;text-align:center;margin-top:10px;display:none}
+.called-alert.show{display:block}
+.called-alert p{font-family:'Orbitron',monospace;font-size:.65rem;letter-spacing:.12em;color:var(--neon);animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.btn-cancel-ticket{font-family:'Orbitron',monospace;font-size:.53rem;letter-spacing:.1em;color:var(--danger);background:transparent;border:1px solid rgba(255,76,106,.3);padding:5px 13px;border-radius:2px;cursor:pointer;transition:all .2s;margin-top:10px}
 .btn-cancel-ticket:hover{background:rgba(255,76,106,.1)}
 
 /* Status Grid */
-.status-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:36px}
-.status-card{background:var(--card);border:1px solid var(--border);border-radius:4px;
-  padding:16px 18px;position:relative;overflow:hidden;transition:transform .3s,box-shadow .3s;cursor:pointer}
+.status-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:32px}
+.status-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:14px 16px;position:relative;overflow:hidden;transition:transform .3s,box-shadow .3s}
 .status-card:hover{transform:translateY(-3px);box-shadow:var(--glow)}
-.status-card::before{content:'';position:absolute;inset:0;
-  background:linear-gradient(135deg,rgba(240,192,64,.04) 0%,transparent 60%);pointer-events:none}
-.sc-game{font-family:'Orbitron',monospace;font-size:.7rem;font-weight:700;letter-spacing:.1em;
-  color:var(--gold);margin-bottom:8px;display:flex;align-items:center;gap:8px}
-.sc-icon{font-size:1.3rem;filter:drop-shadow(0 0 5px var(--gold))}
-.sc-badge{display:inline-block;font-family:'Orbitron',monospace;font-size:.55rem;
-  letter-spacing:.1em;padding:2px 9px;border-radius:2px;margin-bottom:10px}
+.status-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(240,192,64,.04) 0%,transparent 60%);pointer-events:none}
+.sc-name{font-family:'Orbitron',monospace;font-size:.68rem;font-weight:700;letter-spacing:.1em;color:var(--gold);margin-bottom:7px;display:flex;align-items:center;gap:7px}
+.sc-icon{font-size:1.2rem;filter:drop-shadow(0 0 4px var(--gold))}
+.sc-badge{display:inline-block;font-family:'Orbitron',monospace;font-size:.52rem;letter-spacing:.1em;padding:2px 8px;border-radius:2px;margin-bottom:9px}
 .sc-badge.open{background:rgba(0,255,231,.1);color:var(--neon);border:1px solid rgba(0,255,231,.3)}
 .sc-badge.wait{background:rgba(240,192,64,.1);color:var(--gold);border:1px solid rgba(240,192,64,.3)}
 .sc-badge.full{background:rgba(255,76,106,.1);color:var(--danger);border:1px solid rgba(255,76,106,.3)}
-.sc-badge.closed{background:rgba(232,223,192,.05);color:rgba(232,223,192,.25);border:1px solid rgba(232,223,192,.1)}
-.sc-metrics{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.sc-metric{background:rgba(0,0,0,.3);border-radius:3px;padding:7px 5px;text-align:center}
-.sc-val{font-family:'Orbitron',monospace;font-size:1.2rem;font-weight:700;color:var(--gold2);line-height:1}
+.sc-badge.closed{background:rgba(232,223,192,.05);color:rgba(232,223,192,.22);border:1px solid rgba(232,223,192,.1)}
+.sc-metrics{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.sc-metric{background:rgba(0,0,0,.28);border-radius:3px;padding:6px 4px;text-align:center}
+.sc-val{font-family:'Orbitron',monospace;font-size:1.15rem;font-weight:700;color:var(--gold2);line-height:1}
 .sc-val.neon{color:var(--neon)}
-.sc-lab{font-size:.58rem;color:rgba(232,223,192,.4);letter-spacing:.06em;margin-top:2px}
+.sc-lab{font-size:.56rem;color:rgba(232,223,192,.35);letter-spacing:.05em;margin-top:2px}
 
 /* Reserve Form */
-.reserve-box{background:var(--card);border:1px solid var(--border);border-radius:4px;
-  padding:26px 26px;margin-bottom:40px;position:relative;overflow:hidden}
-.reserve-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
-  background:linear-gradient(90deg,transparent,var(--gold),transparent)}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
-.form-group{display:flex;flex-direction:column;gap:6px}
-.form-group.full{grid-column:1/-1}
-.form-label{font-family:'Orbitron',monospace;font-size:.56rem;letter-spacing:.18em;color:var(--neon)}
-.form-input,.form-select{background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:3px;
-  color:#e8dfc0;font-family:'Rajdhani',sans-serif;font-size:1rem;padding:10px 13px;outline:none;width:100%;transition:border-color .2s}
+.reserve-box{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:24px;margin-bottom:36px;position:relative;overflow:hidden}
+.reserve-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.form-note{font-size:.78rem;color:rgba(232,223,192,.4);letter-spacing:.04em;margin-bottom:18px;line-height:1.6;text-align:center}
+.form-group{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.form-label{font-family:'Orbitron',monospace;font-size:.55rem;letter-spacing:.18em;color:var(--neon)}
+.form-input,.form-select{background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:3px;color:#e8dfc0;font-family:'Rajdhani',sans-serif;font-size:1rem;padding:10px 13px;outline:none;width:100%;transition:border-color .2s,box-shadow .2s}
 .form-input:focus,.form-select:focus{border-color:var(--gold);box-shadow:0 0 10px rgba(240,192,64,.15)}
+.form-input.error{border-color:var(--danger);box-shadow:0 0 8px rgba(255,76,106,.2)}
 .form-select option{background:#0b1120;color:#e8dfc0}
-.btn-reserve{width:100%;padding:14px;font-family:'Orbitron',monospace;font-size:.72rem;
-  font-weight:700;letter-spacing:.18em;
-  background:linear-gradient(135deg,var(--gold2),var(--gold));
-  color:var(--dark);border:none;border-radius:3px;cursor:pointer;transition:all .25s}
-.btn-reserve:hover:not(:disabled){box-shadow:0 0 30px rgba(240,192,64,.45);transform:translateY(-1px)}
+.nick-hint{font-size:.72rem;margin-top:4px;min-height:18px}
+.nick-hint.ok{color:var(--neon)}
+.nick-hint.ng{color:var(--danger)}
+.btn-reserve{width:100%;padding:13px;font-family:'Orbitron',monospace;font-size:.7rem;font-weight:700;letter-spacing:.18em;background:linear-gradient(135deg,var(--gold2),var(--gold));color:var(--dark);border:none;border-radius:3px;cursor:pointer;transition:all .25s}
+.btn-reserve:hover:not(:disabled){box-shadow:0 0 28px rgba(240,192,64,.42);transform:translateY(-1px)}
 .btn-reserve:disabled{opacity:.35;cursor:default;transform:none}
 
 /* Ticket Modal */
-.modal-overlay{position:fixed;inset:0;z-index:100;background:rgba(5,8,15,.92);
-  display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+.modal-overlay{position:fixed;inset:0;z-index:100;background:rgba(5,8,15,.92);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
 .modal-overlay.show{opacity:1;pointer-events:all}
-.modal{background:var(--card);border:1px solid var(--gold);border-radius:4px;
-  padding:38px 34px;max-width:360px;width:90%;text-align:center;position:relative;
-  box-shadow:0 0 60px rgba(240,192,64,.2)}
-.modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
-  background:linear-gradient(90deg,transparent,var(--gold2),transparent)}
-.tk-label{font-family:'Orbitron',monospace;font-size:.55rem;letter-spacing:.4em;color:rgba(232,223,192,.35);margin-bottom:10px}
-.tk-number{font-family:'Orbitron',monospace;font-size:5rem;font-weight:900;line-height:1;
-  background:linear-gradient(135deg,var(--gold2),var(--gold));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  filter:drop-shadow(0 0 20px rgba(240,192,64,.4));margin-bottom:8px}
-.tk-game{font-size:1.1rem;font-weight:600;color:var(--neon);letter-spacing:.1em;margin-bottom:18px}
-.tk-info{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px}
-.tk-box{background:rgba(0,0,0,.4);border-radius:3px;padding:10px;border:1px solid var(--border)}
-.tk-val{font-family:'Orbitron',monospace;font-size:1.05rem;font-weight:700;color:var(--gold2)}
-.tk-lab{font-size:.62rem;color:rgba(232,223,192,.35);letter-spacing:.08em;margin-top:3px}
-.tk-note{font-size:.75rem;color:rgba(232,223,192,.35);letter-spacing:.04em;line-height:1.6;margin-bottom:20px}
-.deco-line{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:16px 0}
-.btn-close{font-family:'Orbitron',monospace;font-size:.62rem;letter-spacing:.14em;
-  color:var(--neon);background:transparent;border:1px solid var(--neon);
-  padding:10px 28px;border-radius:2px;cursor:pointer;transition:all .2s}
+.modal{background:var(--card);border:1px solid var(--gold);border-radius:4px;padding:36px 32px;max-width:340px;width:90%;text-align:center;position:relative;box-shadow:0 0 50px rgba(240,192,64,.2)}
+.modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold2),transparent)}
+.tk-label{font-family:'Orbitron',monospace;font-size:.53rem;letter-spacing:.38em;color:rgba(232,223,192,.3);margin-bottom:8px}
+.tk-number{font-family:'Orbitron',monospace;font-size:5rem;font-weight:900;line-height:1;background:linear-gradient(135deg,var(--gold2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 18px rgba(240,192,64,.4));margin-bottom:6px}
+.tk-game{font-size:1rem;font-weight:600;color:var(--neon);letter-spacing:.1em;margin-bottom:4px}
+.tk-visitor{font-family:'Orbitron',monospace;font-size:.6rem;color:rgba(232,223,192,.35);letter-spacing:.15em;margin-bottom:16px}
+.deco-line{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:14px 0}
+.tk-info{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.tk-box{background:rgba(0,0,0,.4);border-radius:3px;padding:9px;border:1px solid var(--border)}
+.tk-val{font-family:'Orbitron',monospace;font-size:1rem;font-weight:700;color:var(--gold2)}
+.tk-lab{font-size:.6rem;color:rgba(232,223,192,.32);letter-spacing:.07em;margin-top:2px}
+.tk-note{font-size:.73rem;color:rgba(232,223,192,.32);letter-spacing:.04em;line-height:1.6;margin-bottom:18px}
+.btn-close{font-family:'Orbitron',monospace;font-size:.6rem;letter-spacing:.13em;color:var(--neon);background:transparent;border:1px solid var(--neon);padding:9px 26px;border-radius:2px;cursor:pointer;transition:all .2s}
 .btn-close:hover{background:var(--neon);color:var(--dark)}
 
-.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);
-  z-index:200;background:rgba(11,17,32,.97);border:1px solid var(--gold);border-radius:3px;
-  padding:10px 22px;font-family:'Orbitron',monospace;font-size:.62rem;letter-spacing:.14em;
-  color:var(--gold);opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap}
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);z-index:200;background:rgba(11,17,32,.97);border:1px solid var(--gold);border-radius:3px;padding:9px 20px;font-family:'Orbitron',monospace;font-size:.6rem;letter-spacing:.13em;color:var(--gold);opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.err{border-color:var(--danger);color:var(--danger)}
 .toast.ok{border-color:var(--neon);color:var(--neon)}
-
-.loading{text-align:center;padding:50px 0;font-family:'Orbitron',monospace;
-  font-size:.68rem;letter-spacing:.3em;color:rgba(232,223,192,.25);animation:blink 1.2s infinite}
-@keyframes blink{0%,100%{opacity:.3}50%{opacity:1}}
-
-footer{text-align:center;padding:40px 0 0;font-size:.65rem;letter-spacing:.2em;
-  color:rgba(232,223,192,.2);text-transform:uppercase}
-
-@media(max-width:600px){
-  h1{font-size:1.8rem}
-  .form-grid{grid-template-columns:1fr}
-  .form-group.full{grid-column:1}
-  .mtp-num{font-size:2.4rem}
-  .status-grid{grid-template-columns:1fr 1fr}
-}
+.loading{text-align:center;padding:44px 0;font-family:'Orbitron',monospace;font-size:.66rem;letter-spacing:.28em;color:rgba(232,223,192,.22);animation:blink 1.2s infinite}
+footer{text-align:center;padding:38px 0 0;font-size:.63rem;letter-spacing:.2em;color:rgba(232,223,192,.18)}
+@media(max-width:540px){h1{font-size:1.8rem}.mtp-num{font-size:2.2rem}.status-grid{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
 <div id="stars"></div>
 <div class="wrapper">
-
   <header>
     <p class="logo-sub">High School Festival 2025</p>
     <h1>CASINO ROYALE</h1>
-    <p class="subtitle">受付 · 予約 · 待ち状況</p>
+    <p class="subtitle">予約 · 受付 · 待ち状況</p>
     <div class="header-deco"><span></span><span class="suit">♠ ♥ ♦ ♣</span><span></span></div>
   </header>
 
   <nav>
     <a href="index.html">🏠 TOP</a>
     <a href="ranking.html">🏆 ランキング</a>
-    <a href="reserve.html" class="active">🎫 予約</a>
-    <a href="admin-reserve.html">⚙ 管理者</a>
+    <a href="reserve.html" class="active">🎫 予約・受付</a>
+    <a href="admin.html">⚙ 管理者</a>
     <a href="https://yokote2025s513-eng.github.io/casino-rulebook/" target="_blank">📖 ルール</a>
   </nav>
 
-  <!-- 自分の整理券 -->
+  <!-- My Ticket Panel -->
   <div class="my-ticket-panel" id="myTicketPanel">
     <div class="mtp-header">
-      <span class="mtp-title">▸ MY TICKET</span>
-      <span class="mtp-status waiting" id="mtpBadge">WAITING</span>
+      <span class="mtp-label">▸ MY TICKET</span>
+      <span class="mtp-badge waiting" id="mtpBadge">WAITING</span>
     </div>
     <div class="mtp-body">
       <div class="mtp-num" id="mtpNum">---</div>
-      <div class="mtp-details">
+      <div>
         <div class="mtp-game" id="mtpGame">---</div>
         <div class="mtp-wait" id="mtpWait">---</div>
         <div class="mtp-pos"  id="mtpPos">---</div>
       </div>
     </div>
-    <div class="called-alert" id="calledAlert">
-      <p>📢 お呼び出し中！ テーブルへお越しください</p>
-    </div>
+    <div class="called-alert" id="calledAlert"><p>📢 お呼び出し中！ テーブルへお越しください</p></div>
     <button class="btn-cancel-ticket" onclick="cancelMyTicket()">✕ 整理券をキャンセル</button>
   </div>
 
-  <!-- 待ち状況ボード -->
+  <!-- Status Board -->
   <div class="live-badge"><span class="live-dot"></span>LIVE – リアルタイム更新中</div>
   <p class="section-title">▸ GAME STATUS ◂</p>
   <div class="status-grid" id="statusGrid"><div class="loading">CONNECTING...</div></div>
 
-  <!-- 予約フォーム -->
+  <!-- Reservation Form -->
   <p class="section-title">▸ 整理券を取得する ◂</p>
   <div class="reserve-box">
-    <div class="form-grid">
-      <div class="form-group full">
-        <label class="form-label">ゲームを選択</label>
-        <select class="form-select" id="gameSelect">
-          <option value="">-- ゲームを選んでください --</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">お名前（ニックネーム可）</label>
-        <input class="form-input" id="nameInput" type="text" placeholder="例: Tanaka" maxlength="20" autocomplete="off">
-      </div>
-      <div class="form-group">
-        <label class="form-label">人数</label>
-        <select class="form-select" id="countSelect">
-          <option value="1">1名</option>
-          <option value="2">2名</option>
-          <option value="3">3名</option>
-          <option value="4">4名</option>
-          <option value="5">5名以上</option>
-        </select>
-      </div>
+    <p class="form-note">ニックネームを登録して整理券を取得してください。<br>このニックネームはランキングにも使用されます。</p>
+    <div class="form-group">
+      <label class="form-label">ニックネーム</label>
+      <input class="form-input" id="nickInput" type="text" placeholder="例: Tanaka" maxlength="20" autocomplete="off">
+      <div class="nick-hint" id="nickHint"></div>
     </div>
-    <button class="btn-reserve" id="reserveBtn" onclick="submitReservation()">♦ 整理券を取得する ♦</button>
+    <div class="form-group">
+      <label class="form-label">ゲームを選択</label>
+      <select class="form-select" id="gameSelect">
+        <option value="">-- ゲームを選んでください --</option>
+      </select>
+    </div>
+    <button class="btn-reserve" id="reserveBtn" onclick="submitReservation()" disabled>♦ 整理券を取得する ♦</button>
   </div>
+</div>
 
-</div><!-- /wrapper -->
-
-<!-- 整理券モーダル -->
+<!-- Ticket Modal -->
 <div class="modal-overlay" id="ticketModal">
   <div class="modal">
     <div class="tk-label">整理券番号</div>
     <div class="tk-number" id="tkNum">000</div>
-    <div class="tk-game"   id="tkGame">---</div>
+    <div class="tk-game" id="tkGame">---</div>
+    <div class="tk-visitor" id="tkVisitor">来場者番号 ---</div>
     <div class="deco-line"></div>
     <div class="tk-info">
       <div class="tk-box"><div class="tk-val" id="tkPos">-</div><div class="tk-lab">現在の待ち順</div></div>
       <div class="tk-box"><div class="tk-val" id="tkWait">-分</div><div class="tk-lab">目安待ち時間</div></div>
     </div>
     <p class="tk-note" id="tkName">---</p>
-    <p class="tk-note">この画面をスクリーンショットするか番号を覚えてください。<br>呼出時はこのページに通知されます。</p>
+    <p class="tk-note">この画面をスクリーンショットするか番号を覚えてください。呼出時はこのページに通知されます。</p>
     <button class="btn-close" onclick="closeModal()">CLOSE ✕</button>
   </div>
 </div>
 
+<datalist id="nicknameList"></datalist>
 <div class="toast" id="toast"></div>
 <footer><p>© 2025 Casino Royale – School Festival Edition</p></footer>
 
@@ -270,21 +206,57 @@ footer{text-align:center;padding:40px 0 0;font-size:.65rem;letter-spacing:.2em;
 <script>
 // Stars
 const se=document.getElementById('stars');
-for(let i=0;i<100;i++){const s=document.createElement('span');
-  s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*4}s;animation-duration:${2+Math.random()*4}s`;
-  se.appendChild(s)}
+for(let i=0;i<100;i++){const s=document.createElement('span');s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*4}s;animation-duration:${2+Math.random()*4}s`;se.appendChild(s)}
 
 const ICONS={'ポーカー':'🃏','チンチロ':'🎲','ブラックジャック':'🂡','競馬':'🏇'};
-let gamesData={}, queuesData={};
+let gamesData={}, queuesData={}, nicksData={};
 let myKey=localStorage.getItem('resKey')||null;
 let myGame=localStorage.getItem('resGame')||null;
+let nickCheckTimer=null;
+let nickOk=false;
 
-// Firebase 初回セットアップ
 initDefaultReservationGames();
 
-// リアルタイム購読
+// Autocomplete datalist
+attachNicknameAutocomplete(document.getElementById('nickInput'),'nicknameList');
+
 onGamesChange(d=>{gamesData=d;renderStatus();populateSelect();});
 onQueuesChange(d=>{queuesData=d;renderStatus();updateMyPanel();});
+onNicknamesChange(d=>{nicksData=d;});
+
+// Nick validation
+document.getElementById('nickInput').addEventListener('input',()=>{
+  clearTimeout(nickCheckTimer);
+  const val=document.getElementById('nickInput').value.trim();
+  const hint=document.getElementById('nickHint');
+  const btn=document.getElementById('reserveBtn');
+  nickOk=false;
+  btn.disabled=true;
+  if(!val){hint.textContent='';hint.className='nick-hint';return;}
+  hint.textContent='確認中...';hint.className='nick-hint';
+  nickCheckTimer=setTimeout(async()=>{
+    const exists=await nicknameExists(val);
+    if(exists){
+      hint.textContent='✕ このニックネームはすでに登録されています';
+      hint.className='nick-hint ng';
+      document.getElementById('nickInput').classList.add('error');
+      nickOk=false;
+    } else {
+      hint.textContent='✓ 使用できます';
+      hint.className='nick-hint ok';
+      document.getElementById('nickInput').classList.remove('error');
+      nickOk=true;
+    }
+    updateReserveBtn();
+  },400);
+});
+
+document.getElementById('gameSelect').addEventListener('change',updateReserveBtn);
+
+function updateReserveBtn(){
+  const game=document.getElementById('gameSelect').value;
+  document.getElementById('reserveBtn').disabled=!(nickOk&&game);
+}
 
 function getStatusCls(game){
   const g=gamesData[game];
@@ -294,23 +266,23 @@ function getStatusCls(game){
   if(q.length<(g.tables||1)*2) return 'wait';
   return 'full';
 }
-function statusLabel(cls){return{open:'OPEN – 空きあり',wait:'WAIT – 待ちあり',full:'FULL – 混雑中',closed:'CLOSED'}[cls]||'CLOSED';}
+const STATUS_LABEL={open:'OPEN – 空きあり',wait:'WAIT – 待ちあり',full:'FULL – 混雑中',closed:'CLOSED'};
 
 function renderStatus(){
-  const grid=document.getElementById('statusGrid');
   const games=Object.keys(gamesData);
+  const grid=document.getElementById('statusGrid');
   if(!games.length){grid.innerHTML='<div class="loading">GAME NOT CONFIGURED</div>';return;}
   grid.innerHTML=games.map(g=>{
     const cfg=gamesData[g];
     const cls=getStatusCls(g);
     const q=sortedQueue(queuesData,g);
     const wait=calcWaitMinutes(cfg,q);
-    return`<div class="status-card" onclick="scrollToForm('${g}')">
-      <div class="sc-game"><span class="sc-icon">${ICONS[g]||'🎴'}</span>${g}</div>
-      <div class="sc-badge ${cls}">${statusLabel(cls)}</div>
+    return`<div class="status-card">
+      <div class="sc-name"><span class="sc-icon">${ICONS[g]||'🎴'}</span>${g}</div>
+      <div class="sc-badge ${cls}">${STATUS_LABEL[cls]||'CLOSED'}</div>
       <div class="sc-metrics">
         <div class="sc-metric"><div class="sc-val">${q.length}</div><div class="sc-lab">待ち組数</div></div>
-        <div class="sc-metric"><div class="sc-val neon">${wait!==null?wait+'分':'--'}</div><div class="sc-lab">目安待ち時間</div></div>
+        <div class="sc-metric"><div class="sc-val neon">${wait!==null?wait+'分':'--'}</div><div class="sc-lab">目安待ち</div></div>
       </div>
     </div>`;
   }).join('');
@@ -322,19 +294,12 @@ function populateSelect(){
   sel.innerHTML='<option value="">-- ゲームを選んでください --</option>';
   Object.keys(gamesData).forEach(g=>{
     const cls=getStatusCls(g);
-    const dis=cls==='closed'||cls==='full'?'disabled':'';
-    const lbl=cls==='closed'?' (クローズ中)':cls==='full'?' (満員)':'';
+    const dis=cls==='closed'?'disabled':'';
+    const lbl=cls==='closed'?' (クローズ中)':'';
     sel.innerHTML+=`<option value="${g}" ${dis}>${g}${lbl}</option>`;
   });
   if(cur) sel.value=cur;
-}
-
-function scrollToForm(game){
-  const sel=document.getElementById('gameSelect');
-  if(!sel.querySelector(`option[value="${game}"]`)?.disabled){
-    sel.value=game;
-  }
-  document.querySelector('.reserve-box').scrollIntoView({behavior:'smooth',block:'center'});
+  updateReserveBtn();
 }
 
 function updateMyPanel(){
@@ -353,9 +318,10 @@ function updateMyPanel(){
   }
   panel.classList.add('show');
   const pos=q.findIndex(e=>e.key===myKey);
-  const wait=calcWaitMinutes(gamesData[myGame],q);
-  const perG=gamesData[myGame]?.waitPerGroup||15;
-  const myWait=pos>=0?Math.ceil((pos+1)*perG/(gamesData[myGame]?.tables||1)):wait;
+  const cfg=gamesData[myGame]||{};
+  const perG=cfg.waitPerGroup||15;
+  const tables=cfg.tables||1;
+  const myWait=Math.ceil((pos+1)/tables)*perG;
 
   document.getElementById('mtpNum').textContent=String(entry.num).padStart(3,'0');
   document.getElementById('mtpGame').textContent=myGame;
@@ -365,37 +331,47 @@ function updateMyPanel(){
   const badge=document.getElementById('mtpBadge');
   const alert=document.getElementById('calledAlert');
   if(entry.called){
-    badge.textContent='CALLED – お呼び出し中';badge.className='mtp-status called';
+    badge.textContent='CALLED – お呼び出し中';badge.className='mtp-badge called';
     alert.classList.add('show');
   } else {
-    badge.textContent='WAITING';badge.className='mtp-status waiting';
+    badge.textContent='WAITING';badge.className='mtp-badge waiting';
     alert.classList.remove('show');
   }
 }
 
 async function submitReservation(){
+  const nick=document.getElementById('nickInput').value.trim();
   const game=document.getElementById('gameSelect').value;
-  const name=document.getElementById('nameInput').value.trim()||'ゲスト';
-  const count=document.getElementById('countSelect').value;
-  if(!game){showToast('ゲームを選択してください','err');return;}
+  if(!nick||!game) return;
   if(myKey){showToast('すでに整理券を持っています','err');return;}
   const btn=document.getElementById('reserveBtn');
   btn.disabled=true;
   try{
-    const {num,key}=await enqueue(game,name,count);
+    const {num,key,visitorNum}=await enqueue(game,nick,false);
     myKey=key;myGame=game;
     localStorage.setItem('resKey',key);localStorage.setItem('resGame',game);
     const q=sortedQueue(queuesData,game);
     const wait=calcWaitMinutes(gamesData[game],q);
     document.getElementById('tkNum').textContent=String(num).padStart(3,'0');
     document.getElementById('tkGame').textContent=game;
-    document.getElementById('tkPos').textContent=(q.length||1)+'番目';
+    document.getElementById('tkVisitor').textContent='来場者番号 '+String(visitorNum).padStart(4,'0');
+    document.getElementById('tkPos').textContent=q.length+'番目';
     document.getElementById('tkWait').textContent=(wait||0)+'分';
-    document.getElementById('tkName').textContent=`${name} 様 ／ ${count}名`;
+    document.getElementById('tkName').textContent=`${nick} 様`;
     document.getElementById('ticketModal').classList.add('show');
+    document.getElementById('nickInput').value='';
+    document.getElementById('nickHint').textContent='';
+    document.getElementById('nickHint').className='nick-hint';
+    nickOk=false;
     updateMyPanel();
-  }catch(e){showToast('エラーが発生しました','err');console.error(e);}
-  btn.disabled=false;
+  } catch(e){
+    if(e.message==='DUPLICATE_NICKNAME'){
+      showToast('そのニックネームはすでに使われています','err');
+    } else {
+      showToast('エラーが発生しました','err');console.error(e);
+    }
+  }
+  btn.disabled=true; // keep disabled until new nick entered
 }
 
 async function cancelMyTicket(){
