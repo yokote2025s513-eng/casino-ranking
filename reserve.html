@@ -168,6 +168,12 @@ footer{text-align:center;padding:38px 0 0;font-size:.63rem;letter-spacing:.2em;c
       <input class="form-input" id="nickInput" type="text" placeholder="例: Tanaka" maxlength="20" autocomplete="off">
       <div class="nick-hint" id="nickHint"></div>
     </div>
+    <div class="form-group">
+      <label class="form-label">ゲームを選択</label>
+      <select class="form-select" id="gameSelect">
+        <option value="">-- ゲームを選んでください --</option>
+      </select>
+    </div>
     <button class="btn-reserve" id="reserveBtn" onclick="submitReservation()" disabled>♦ 整理券を取得する ♦</button>
   </div>
 </div>
@@ -214,7 +220,7 @@ initDefaultReservationGames();
 // Autocomplete datalist
 attachNicknameAutocomplete(document.getElementById('nickInput'),'nicknameList');
 
-onGamesChange(d=>{gamesData=d;renderStatus();});
+onGamesChange(d=>{gamesData=d;renderStatus();populateGameSelect();});
 onQueuesChange(d=>{queuesData=d;renderStatus();updateMyPanel();});
 onNicknamesChange(d=>{nicksData=d;});
 
@@ -245,8 +251,10 @@ document.getElementById('nickInput').addEventListener('input',()=>{
   },400);
 });
 
+document.addEventListener('DOMContentLoaded',()=>{document.getElementById('gameSelect').addEventListener('change',updateReserveBtn);});
 function updateReserveBtn(){
-  document.getElementById('reserveBtn').disabled=!nickOk;
+  const game=document.getElementById('gameSelect').value;
+  document.getElementById('reserveBtn').disabled=!(nickOk&&game);
 }
 
 function getStatusCls(game){
@@ -258,6 +266,19 @@ function getStatusCls(game){
   return 'full';
 }
 const STATUS_LABEL={open:'OPEN – 空きあり',wait:'WAIT – 待ちあり',full:'FULL – 混雑中',closed:'CLOSED'};
+function populateGameSelect(){
+  const sel=document.getElementById('gameSelect');
+  const cur=sel.value;
+  sel.innerHTML='<option value="">-- ゲームを選んでください --</option>';
+  Object.keys(gamesData).forEach(g=>{
+    const cls=getStatusCls(g);
+    const dis=cls==='closed'?'disabled':'';
+    const lbl=cls==='closed'?' (クローズ中)':'';
+    sel.innerHTML+=`<option value="${g}" ${dis}>${g}${lbl}</option>`;
+  });
+  if(cur) sel.value=cur;
+  updateReserveBtn();
+}
 
 function renderStatus(){
   const games=Object.keys(gamesData);
@@ -320,19 +341,26 @@ function updateMyPanel(){
 
 async function submitReservation(){
   const nick=document.getElementById('nickInput').value.trim();
-  if(!nick){return;}
+  const game=document.getElementById('gameSelect').value;
+  if(!nick||!game){return;}
   if(myKey){showToast('すでに整理券を持っています','err');return;}
   const btn=document.getElementById('reserveBtn');
   btn.disabled=true;
   try{
-    const {num,key,visitorNum}=await enqueueNoGame(nick);
-    myKey=key;myGame='__reception__';
-    localStorage.setItem('resKey',key);localStorage.setItem('resGame','__reception__');
+    const {num,key,visitorNum}=await enqueue(game,nick,false);
+    myKey=key;myGame=game;
+    localStorage.setItem('resKey',key);localStorage.setItem('resGame',game);
+    const q=sortedQueue(queuesData,game);
+    const wait=calcWaitMinutes(gamesData[game],q);
     document.getElementById('tkNum').textContent=String(num).padStart(3,'0');
+    document.getElementById('tkGame').textContent=game;
+    document.getElementById('tkPos').textContent=q.length+'番目';
+    document.getElementById('tkWait').textContent=(wait||0)+'分';
     document.getElementById('tkVisitor').textContent='来場者番号 '+String(visitorNum).padStart(4,'0');
     document.getElementById('tkName').textContent=`${nick} 様`;
     document.getElementById('ticketModal').classList.add('show');
     document.getElementById('nickInput').value='';
+    document.getElementById('gameSelect').value='';
     document.getElementById('nickHint').textContent='';
     document.getElementById('nickHint').className='nick-hint';
     nickOk=false;
