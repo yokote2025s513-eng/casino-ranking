@@ -61,7 +61,9 @@ nav a:hover,nav a.active{background:var(--neon);color:var(--dark);box-shadow:0 0
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(0,255,231,.6)}50%{box-shadow:0 0 0 6px rgba(0,255,231,0)}}
 
 /* Game grid (ranking preview) */
-.game-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px}
+.game-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+@media(max-width:900px){.game-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.game-grid{grid-template-columns:1fr}}
 .game-card{background:var(--card);border:1px solid var(--border);border-radius:4px;overflow:hidden;position:relative;transition:transform .3s,box-shadow .3s}
 .game-card:hover{transform:translateY(-4px);box-shadow:var(--glow)}
 .game-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(240,192,64,.05) 0%,transparent 60%);pointer-events:none}
@@ -87,7 +89,7 @@ nav a:hover,nav a.active{background:var(--neon);color:var(--dark);box-shadow:0 0
 .loading{text-align:center;padding:60px 0;font-family:'Orbitron',monospace;font-size:.72rem;letter-spacing:.3em;color:rgba(232,223,192,.25);animation:blink 1.2s infinite}
 @keyframes blink{0%,100%{opacity:.3}50%{opacity:1}}
 footer{text-align:center;padding:40px 0 0;font-size:.7rem;letter-spacing:.2em;color:rgba(232,223,192,.22);text-transform:uppercase}
-@media(max-width:600px){h1{font-size:2rem}.hero-grid{grid-template-columns:1fr}.game-grid{grid-template-columns:1fr}}
+@media(max-width:600px){h1{font-size:2rem}.hero-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>

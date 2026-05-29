@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>CASINO ROYALE – 受付・来場管理</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--gold:#f0c040;--gold2:#ffd700;--neon:#00ffe7;--dark:#05080f;--card:#0b1120;--border:rgba(240,192,64,.25);--glow:0 0 18px rgba(240,192,64,.5);--danger:#ff4c6a;--green:#5dde8a}
+html,body{min-height:100vh}
+body{background:var(--dark);color:#e8dfc0;font-family:'Rajdhani',sans-serif;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:0;background:linear-gradient(rgba(0,255,231,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,231,.04) 1px,transparent 1px);background-size:60px 60px;pointer-events:none}
+.wrapper{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:0 20px 80px}
+
+/* ===== LOGIN ===== */
+#loginScreen{position:fixed;inset:0;z-index:200;background:var(--dark);display:flex;align-items:center;justify-content:center}
+.login-box{background:var(--card);border:1px solid var(--gold);border-radius:4px;padding:44px 36px;text-align:center;min-width:300px;position:relative;overflow:hidden}
+.login-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold2),transparent)}
+.login-sub{font-family:'Orbitron',monospace;font-size:.58rem;letter-spacing:.4em;color:var(--neon);display:block;margin-bottom:8px}
+.login-logo{font-family:'Orbitron',monospace;font-size:1.4rem;font-weight:900;background:linear-gradient(135deg,var(--gold2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:block;margin-bottom:4px}
+.login-logo2{font-family:'Orbitron',monospace;font-size:.75rem;color:var(--neon);letter-spacing:.2em;display:block;margin-bottom:24px}
+.login-lbl{font-family:'Orbitron',monospace;font-size:.5rem;letter-spacing:.22em;color:rgba(232,223,192,.35);margin-bottom:7px;display:block}
+.login-input{background:rgba(0,0,0,.5);border:1px solid var(--border);border-radius:3px;color:#e8dfc0;font-family:'Rajdhani',sans-serif;font-size:1.15rem;padding:11px 15px;width:100%;text-align:center;letter-spacing:.3em;outline:none;transition:border-color .2s}
+.login-input:focus{border-color:var(--gold)}
+.login-btn{margin-top:15px;width:100%;padding:12px;font-family:'Orbitron',monospace;font-size:.66rem;letter-spacing:.18em;background:linear-gradient(135deg,var(--gold2),var(--gold));color:var(--dark);border:none;border-radius:3px;cursor:pointer;transition:all .25s}
+.login-btn:hover{box-shadow:0 0 22px rgba(240,192,64,.4)}
+.login-err{margin-top:11px;font-family:'Orbitron',monospace;font-size:.56rem;letter-spacing:.12em;color:var(--danger);opacity:0;transition:opacity .3s}
+.login-err.show{opacity:1}
+
+/* ===== HEADER / NAV ===== */
+header{text-align:center;padding:36px 0 20px}
+.logo-sub{font-family:'Orbitron',monospace;font-size:.6rem;letter-spacing:.4em;color:var(--neon);opacity:.8;margin-bottom:7px}
+h1{font-family:'Orbitron',monospace;font-size:clamp(1.3rem,4vw,2.4rem);font-weight:900;background:linear-gradient(135deg,var(--gold2),var(--gold),#c8860a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 12px rgba(240,192,64,.4));letter-spacing:.05em}
+.subtitle{margin-top:6px;font-size:.75rem;letter-spacing:.3em;color:rgba(232,223,192,.35)}
+.header-deco{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:10px}
+.header-deco span{display:inline-block;height:1px;width:70px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.suit{font-size:1rem;color:var(--neon)}
+
+nav{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+nav a{font-family:'Orbitron',monospace;font-size:.58rem;letter-spacing:.1em;color:var(--neon);text-decoration:none;border:1px solid var(--neon);padding:6px 13px;border-radius:2px;transition:all .25s}
+nav a:hover,nav a.active{background:var(--neon);color:var(--dark);box-shadow:0 0 14px var(--neon)}
+
+/* ===== STATS ===== */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:22px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:14px;text-align:center}
+.stat-val{font-family:'Orbitron',monospace;font-size:2.2rem;font-weight:700;line-height:1}
+.stat-val.green{color:var(--green);filter:drop-shadow(0 0 8px rgba(93,222,138,.35))}
+.stat-val.neon{color:var(--neon)}
+.stat-val.gold{color:var(--gold2)}
+.stat-lbl{font-size:.6rem;color:rgba(232,223,192,.32);letter-spacing:.1em;margin-top:5px}
+
+/* ===== ISSUE FORM ===== */
+.issue-box{background:var(--card);border:1px solid rgba(0,255,231,.3);border-radius:4px;padding:22px 24px;margin-bottom:22px;position:relative;overflow:hidden}
+.issue-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--neon),transparent)}
+.section-title{font-family:'Orbitron',monospace;font-size:.58rem;letter-spacing:.3em;color:var(--neon);margin-bottom:14px}
+.f-lbl{font-family:'Orbitron',monospace;font-size:.5rem;letter-spacing:.14em;color:rgba(232,223,192,.35);margin-bottom:6px;display:block}
+.f-inp{background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:3px;color:#e8dfc0;font-family:'Rajdhani',sans-serif;font-size:1rem;padding:10px 13px;width:100%;outline:none;transition:border-color .2s,box-shadow .2s}
+.f-inp:focus{border-color:var(--neon);box-shadow:0 0 10px rgba(0,255,231,.12)}
+.f-inp.err{border-color:var(--danger)}
+.nick-hint{font-size:.72rem;margin-top:5px;min-height:18px;letter-spacing:.03em}
+.nick-hint.ok{color:var(--neon)}
+.nick-hint.ng{color:var(--danger)}
+.nick-hint.warn{color:var(--gold)}
+.f-sel{background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:3px;color:#e8dfc0;font-family:'Rajdhani',sans-serif;font-size:1rem;padding:10px 13px;width:100%;outline:none;margin-top:14px}
+.f-sel option{background:#0b1120}
+.btn-issue{width:100%;margin-top:16px;padding:14px;font-family:'Orbitron',monospace;font-size:.72rem;font-weight:700;letter-spacing:.2em;background:linear-gradient(135deg,var(--neon),#00c8b8);color:var(--dark);border:none;border-radius:3px;cursor:pointer;transition:all .25s}
+.btn-issue:hover:not(:disabled){box-shadow:0 0 26px rgba(0,255,231,.4);transform:translateY(-1px)}
+.btn-issue:disabled{opacity:.35;cursor:default;transform:none}
+
+/* ===== ISSUED TICKET ===== */
+.issued-ticket{background:rgba(0,255,231,.05);border:1px solid rgba(0,255,231,.25);border-radius:4px;padding:18px 22px;margin-top:16px;display:none;align-items:center;gap:18px;position:relative;overflow:hidden}
+.issued-ticket::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--neon),transparent)}
+.issued-ticket.show{display:flex}
+.it-num{font-family:'Orbitron',monospace;font-size:3rem;font-weight:900;background:linear-gradient(135deg,var(--gold2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;flex-shrink:0;filter:drop-shadow(0 0 10px rgba(240,192,64,.3))}
+.it-info{flex:1}
+.it-nick{font-size:1.1rem;font-weight:600;color:var(--neon);letter-spacing:.06em}
+.it-game{font-family:'Orbitron',monospace;font-size:.65rem;color:rgba(232,223,192,.5);letter-spacing:.1em;margin-top:4px}
+.it-visitor{font-family:'Orbitron',monospace;font-size:.6rem;color:rgba(232,223,192,.35);letter-spacing:.12em;margin-top:3px}
+.btn-next{margin-top:14px;width:100%;padding:11px;font-family:'Orbitron',monospace;font-size:.65rem;letter-spacing:.15em;background:transparent;border:1px solid var(--neon);color:var(--neon);border-radius:3px;cursor:pointer;transition:all .2s}
+.btn-next:hover{background:rgba(0,255,231,.08)}
+
+/* ===== QUEUE TABLE ===== */
+.queue-box{background:var(--card);border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:22px}
+.queue-hdr{background:rgba(240,192,64,.05);border-bottom:1px solid var(--border);padding:10px 14px;display:flex;align-items:center;justify-content:space-between}
+.q-title{font-family:'Orbitron',monospace;font-size:.66rem;letter-spacing:.12em;color:var(--gold)}
+.q-filter{background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:3px;color:#e8dfc0;font-family:'Rajdhani',sans-serif;font-size:.82rem;padding:4px 8px;outline:none}
+.q-filter option{background:#0b1120}
+table.qt{width:100%;border-collapse:collapse}
+table.qt th{font-family:'Orbitron',monospace;font-size:.5rem;letter-spacing:.12em;color:rgba(232,223,192,.3);padding:7px 12px;border-bottom:1px solid var(--border);text-align:left;background:rgba(0,0,0,.15)}
+table.qt td{padding:9px 12px;border-bottom:1px solid rgba(240,192,64,.04);font-size:.84rem;vertical-align:middle}
+table.qt tr:last-child td{border-bottom:none}
+table.qt tr.row-called{background:rgba(0,255,231,.03)}
+.num-b{font-family:'Orbitron',monospace;font-size:.76rem;font-weight:700;background:linear-gradient(135deg,var(--gold2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.dot.w{background:var(--gold);box-shadow:0 0 5px var(--gold)}
+.dot.c{background:var(--neon);box-shadow:0 0 7px var(--neon);animation:dp 1.2s infinite}
+@keyframes dp{0%,100%{opacity:1}50%{opacity:.3}}
+.act-btn{font-family:'Orbitron',monospace;font-size:.47rem;letter-spacing:.07em;padding:4px 9px;border-radius:2px;cursor:pointer;transition:all .2s;border:1px solid}
+.btn-call{color:var(--neon);border-color:rgba(0,255,231,.4);background:rgba(0,255,231,.05)}
+.btn-call:hover{background:rgba(0,255,231,.14)}
+.btn-uncall{color:var(--gold);border-color:rgba(240,192,64,.4);background:rgba(240,192,64,.05)}
+.btn-del{color:var(--danger);border-color:rgba(255,76,106,.3);background:transparent;margin-left:3px}
+.btn-del:hover{background:rgba(255,76,106,.08)}
+.empty-row td{text-align:center;padding:18px;color:rgba(232,223,192,.2);font-family:'Orbitron',monospace;font-size:.62rem;letter-spacing:.14em}
+
+/* ===== VISITOR LIST ===== */
+.visitor-box{background:var(--card);border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:22px}
+.visitor-search{background:rgba(0,0,0,.4);border:none;border-bottom:1px solid var(--border);color:#e8dfc0;font-family:'Rajdhani',sans-serif;font-size:.9rem;padding:10px 14px;width:100%;outline:none}
+.visitor-search::placeholder{color:rgba(232,223,192,.3)}
+table.vt{width:100%;border-collapse:collapse}
+table.vt th{font-family:'Orbitron',monospace;font-size:.5rem;letter-spacing:.12em;color:rgba(232,223,192,.3);padding:7px 12px;border-bottom:1px solid var(--border);text-align:left;background:rgba(0,0,0,.15)}
+table.vt td{padding:8px 12px;border-bottom:1px solid rgba(240,192,64,.04);font-size:.83rem;vertical-align:middle}
+table.vt tr:last-child td{border-bottom:none}
+.v-num{font-family:'Orbitron',monospace;font-size:.72rem;color:rgba(232,223,192,.4)}
+
+/* reset */
+.util-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:28px}
+.btn-util{font-family:'Orbitron',monospace;font-size:.55rem;letter-spacing:.08em;padding:7px 12px;background:rgba(255,76,106,.06);border:1px solid rgba(255,76,106,.3);color:var(--danger);border-radius:2px;cursor:pointer;transition:all .2s}
+.btn-util:hover{background:rgba(255,76,106,.14)}
+.btn-util.gold{background:rgba(240,192,64,.06);border-color:rgba(240,192,64,.3);color:var(--gold)}
+
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);z-index:300;background:rgba(11,17,32,.98);border:1px solid var(--gold);border-radius:3px;padding:9px 20px;font-family:'Orbitron',monospace;font-size:.6rem;letter-spacing:.13em;color:var(--gold);opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.err{border-color:var(--danger);color:var(--danger)}
+.toast.ok{border-color:var(--neon);color:var(--neon)}
+footer{text-align:center;padding:36px 0 0;font-size:.62rem;letter-spacing:.2em;color:rgba(232,223,192,.18)}
+</style>
+</head>
+<body>
+
+<!-- Login -->
+<div id="loginScreen">
+  <div class="login-box">
+    <span class="login-sub">Staff Only</span>
+    <span class="login-logo">CASINO ROYALE</span>
+    <span class="login-logo2">受付 · 来場管理</span>
+    <label class="login-lbl">パスワードを入力</label>
+    <input class="login-input" id="pwInput" type="password" placeholder="••••••">
+    <button class="login-btn" onclick="doLogin()">ENTER ▶</button>
+    <div class="login-err" id="loginErr">パスワードが違います</div>
+  </div>
+</div>
+
+<div class="wrapper" id="mainContent" style="display:none;">
+  <header>
+    <p class="logo-sub">Staff · Reception</p>
+    <h1>CASINO ROYALE</h1>
+    <p class="subtitle">受付 · 来場管理</p>
+    <div class="header-deco"><span></span><span class="suit">🎫 ♠ 🎫</span><span></span></div>
+  </header>
+
+  <nav>
+    <a href="index.html">🏠 TOP</a>
+    <a href="reserve.html">🎫 予約</a>
+    <a href="admin.html">⚙ 管理者</a>
+    <a href="reception.html" class="active">📋 受付</a>
+  </nav>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-val green" id="statVisitor">0</div><div class="stat-lbl">本日来場者</div></div>
+    <div class="stat-card"><div class="stat-val neon" id="statWaiting">0</div><div class="stat-lbl">現在待ち</div></div>
+    <div class="stat-card"><div class="stat-val gold" id="statTicket">0</div><div class="stat-lbl">発券数</div></div>
+  </div>
+
+  <!-- ===== 整理券発行 ===== -->
+  <div class="issue-box">
+    <div class="section-title">▸ 整理券発行（来場者登録）</div>
+    <label class="f-lbl">ニックネーム</label>
+    <input class="f-inp" id="issueNick" type="text" placeholder="例: Tanaka" maxlength="20" autocomplete="off">
+    <div class="nick-hint" id="issueHint"></div>
+
+    <label class="f-lbl" style="margin-top:14px;">ゲーム（任意）</label>
+    <select class="f-sel" id="issueGame">
+      <option value="">-- 指定なし --</option>
+    </select>
+
+    <button class="btn-issue" id="issueBtn" onclick="doIssue()">🎫 整理券を発行する</button>
+
+    <!-- 発行済み表示 -->
+    <div class="issued-ticket" id="issuedTicket">
+      <div class="it-num" id="itNum">---</div>
+      <div class="it-info">
+        <div class="it-nick" id="itNick">---</div>
+        <div class="it-game" id="itGame">---</div>
+        <div class="it-visitor" id="itVisitor">---</div>
+      </div>
+    </div>
+    <button class="btn-next" id="btnNext" style="display:none;" onclick="nextGuest()">▶ 次の来場者</button>
+  </div>
+
+  <!-- ===== 待ち管理 ===== -->
+  <div class="section-title">▸ 待ち管理</div>
+  <div class="queue-box">
+    <div class="queue-hdr">
+      <span class="q-title">キュー一覧</span>
+      <select class="q-filter" id="queueFilter" onchange="renderQueue()">
+        <option value="all">全ゲーム</option>
+      </select>
+    </div>
+    <table class="qt">
+      <thead><tr><th>番号</th><th>状態</th><th>名前</th><th>ゲーム</th><th>経過</th><th>操作</th></tr></thead>
+      <tbody id="queueBody"></tbody>
+    </table>
+  </div>
+
+  <!-- ===== 来場者一覧 ===== -->
+  <div class="section-title">▸ 来場者一覧</div>
+  <div class="visitor-box">
+    <input class="visitor-search" id="visitorSearch" type="text" placeholder="🔍 名前で検索..." oninput="renderVisitors()">
+    <table class="vt">
+      <thead><tr><th>来場番号</th><th>ニックネーム</th><th>整理番号</th><th>登録時刻</th></tr></thead>
+      <tbody id="visitorBody"></tbody>
+    </table>
+  </div>
+
+  <!-- ===== リセット ===== -->
+  <div class="section-title">▸ リセット操作</div>
+  <div class="util-row">
+    <button class="btn-util" onclick="doClearAll()">全キューをリセット</button>
+    <button class="btn-util gold" onclick="doResetCounter()">整理番号をリセット</button>
+    <button class="btn-util gold" onclick="doResetVisitor()">来場者カウンターをリセット</button>
+  </div>
+
+</div>
+
+<datalist id="nicknameList"></datalist>
+<div class="toast" id="toast"></div>
+<footer><p>© 2025 Casino Royale – Reception</p></footer>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="data.js"></script>
+<script>
+const ICONS={'ポーカー':'🃏','チンチロ':'🎲','ブラックジャック':'🂡','競馬':'🏇'};
+let gamesData={}, queuesData={}, nicksData={}, counterVal=0, visitorVal=0;
+let nickTimer=null;
+let nickOk=false;
+
+// ===== LOGIN =====
+document.getElementById('pwInput').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+function doLogin(){
+  if(document.getElementById('pwInput').value===ADMIN_PASSWORD){
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('mainContent').style.display='block';
+    initDefaultReservationGames().then(startListeners);
+  } else {
+    const err=document.getElementById('loginErr');
+    err.classList.add('show');setTimeout(()=>err.classList.remove('show'),2000);
+    document.getElementById('pwInput').value='';
+  }
+}
+
+function startListeners(){
+  onGamesChange(d=>{gamesData=d;populateGameSelect();renderQueue();});
+  onQueuesChange(d=>{queuesData=d;renderQueue();renderStats();});
+  onNicknamesChange(d=>{nicksData=d;renderVisitors();});
+  onCounterChange(v=>{counterVal=v;document.getElementById('statTicket').textContent=v||0;});
+  onVisitorCountChange(v=>{visitorVal=v;document.getElementById('statVisitor').textContent=v||0;});
+  attachNicknameAutocomplete(document.getElementById('issueNick'),'nicknameList');
+
+  // Nick check
+  document.getElementById('issueNick').addEventListener('input',()=>{
+    clearTimeout(nickTimer);
+    const val=document.getElementById('issueNick').value.trim();
+    const hint=document.getElementById('issueHint');
+    nickOk=false;
+    updateIssueBtn();
+    if(!val){hint.textContent='';hint.className='nick-hint';return;}
+    hint.textContent='確認中...';hint.className='nick-hint';
+    nickTimer=setTimeout(async()=>{
+      const exists=await nicknameExists(val);
+      if(exists){
+        hint.textContent='⚠ 登録済みニックネームです（スタッフ発行は続行できます）';
+        hint.className='nick-hint warn';
+      } else {
+        hint.textContent='✓ 未登録のニックネーム';
+        hint.className='nick-hint ok';
+      }
+      nickOk=true; // staff can always issue
+      updateIssueBtn();
+    },380);
+  });
+}
+
+function updateIssueBtn(){
+  const nick=document.getElementById('issueNick').value.trim();
+  document.getElementById('issueBtn').disabled=!(nick&&nickOk);
+}
+
+function renderStats(){
+  let waiting=0,called=0;
+  Object.keys(queuesData).forEach(g=>{
+    sortedQueue(queuesData,g).forEach(e=>{e.called?called++:waiting++;});
+  });
+  document.getElementById('statWaiting').textContent=waiting;
+}
+
+function populateGameSelect(){
+  const sel=document.getElementById('issueGame');
+  const cur=sel.value;
+  sel.innerHTML='<option value="">-- 指定なし --</option>';
+  Object.keys(gamesData).forEach(g=>{
+    sel.innerHTML+=`<option value="${g}">${ICONS[g]||'🎴'} ${g}</option>`;
+  });
+  if(cur) sel.value=cur;
+
+  // queue filter
+  const qf=document.getElementById('queueFilter');
+  const qfv=qf.value;
+  qf.innerHTML='<option value="all">全ゲーム</option><option value="__reception__">受付（ゲーム未選択）</option>'+
+    Object.keys(gamesData).map(g=>`<option value="${g}">${g}</option>`).join('');
+  if(qfv) qf.value=qfv;
+}
+
+async function doIssue(){
+  const nick=document.getElementById('issueNick').value.trim();
+  const game=document.getElementById('issueGame').value||'__reception__';
+  if(!nick) return;
+  document.getElementById('issueBtn').disabled=true;
+  try{
+    const {num,key,visitorNum}=await enqueue(game,nick,true); // byStaff=true
+    document.getElementById('itNum').textContent=String(num).padStart(3,'0');
+    document.getElementById('itNick').textContent=nick+' 様';
+    document.getElementById('itGame').textContent=game==='__reception__'?'ゲーム未指定':(ICONS[game]||'')+'  '+game;
+    document.getElementById('itVisitor').textContent='来場者番号 '+String(visitorNum).padStart(4,'0');
+    document.getElementById('issuedTicket').classList.add('show');
+    document.getElementById('btnNext').style.display='block';
+    showToast(`整理券 ${String(num).padStart(3,'0')} 発行しました`,'ok');
+  }catch(e){
+    showToast('エラー: '+e.message,'err');console.error(e);
+    document.getElementById('issueBtn').disabled=false;
+  }
+}
+
+function nextGuest(){
+  document.getElementById('issueNick').value='';
+  document.getElementById('issueHint').textContent='';
+  document.getElementById('issueHint').className='nick-hint';
+  document.getElementById('issuedTicket').classList.remove('show');
+  document.getElementById('btnNext').style.display='none';
+  nickOk=false;
+  updateIssueBtn();
+  document.getElementById('issueNick').focus();
+}
+
+function renderQueue(){
+  const filter=document.getElementById('queueFilter')?.value||'all';
+  const body=document.getElementById('queueBody');
+  let all=[];
+  const targets=filter==='all'?Object.keys(queuesData):[filter];
+  targets.forEach(game=>{
+    sortedQueue(queuesData,game).forEach(e=>{all.push({...e,gameId:game});});
+  });
+  all.sort((a,b)=>a.ts-b.ts);
+  if(!all.length){
+    body.innerHTML='<tr class="empty-row"><td colspan="6">— 待ちなし —</td></tr>';
+    return;
+  }
+  body.innerHTML=all.map(e=>{
+    const ago=Math.floor((Date.now()-e.ts)/60000);
+    const agoStr=ago<1?'たった今':ago+'分前';
+    const gameLabel=e.gameId==='__reception__'?'—':(ICONS[e.gameId]||'')+' '+e.gameId;
+    const callBtn=e.called
+      ?`<button class="act-btn btn-uncall" onclick="doUncall('${e.gameId}','${e.key}')">UNCALL</button>`
+      :`<button class="act-btn btn-call" onclick="doCall('${e.gameId}','${e.key}')">CALL</button>`;
+    return`<tr class="${e.called?'row-called':''}">
+      <td><span class="num-b">${String(e.num||0).padStart(3,'0')}</span></td>
+      <td><span class="dot ${e.called?'c':'w'}"></span>${e.called?'呼出中':'待機中'}</td>
+      <td>${e.nickname||'—'}</td>
+      <td style="font-size:.75rem;">${gameLabel}</td>
+      <td style="font-size:.7rem;color:rgba(232,223,192,.35);">${agoStr}</td>
+      <td>${callBtn}<button class="act-btn btn-del" onclick="doDelQueue('${e.gameId}','${e.key}')">DEL</button></td>
+    </tr>`;
+  }).join('');
+}
+
+async function doCall(game,key){await callGuest(game,key,true);showToast('📢 呼び出しました','ok');}
+async function doUncall(game,key){await callGuest(game,key,false);showToast('呼出を取り消しました');}
+async function doDelQueue(game,key){
+  if(!confirm('この整理券を削除しますか？')) return;
+  await dequeue(game,key);showToast('削除しました');
+}
+
+function renderVisitors(){
+  const search=document.getElementById('visitorSearch').value.toLowerCase();
+  const body=document.getElementById('visitorBody');
+  const list=Object.values(nicksData)
+    .filter(n=>!search||n.display.toLowerCase().includes(search))
+    .sort((a,b)=>(b.visitorNum||0)-(a.visitorNum||0));
+  if(!list.length){body.innerHTML='<tr><td colspan="4" style="text-align:center;padding:16px;color:rgba(232,223,192,.2);font-family:Orbitron,monospace;font-size:.62rem;letter-spacing:.14em;">— データなし —</td></tr>';return;}
+  body.innerHTML=list.map(n=>{
+    const d=new Date(n.createdAt);
+    const time=`${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
+    const vNum=n.visitorNum?String(n.visitorNum).padStart(4,'0'):'—';
+    // find ticket num from nicksData
+    return`<tr>
+      <td class="v-num">${vNum}</td>
+      <td style="font-weight:600;">${n.display}</td>
+      <td style="font-family:'Orbitron',monospace;font-size:.72rem;color:var(--gold2);">${n.ticketNum?String(n.ticketNum).padStart(3,'0'):'—'}</td>
+      <td style="font-size:.7rem;color:rgba(232,223,192,.35);">${time}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function doClearAll(){
+  if(!confirm('全キューをリセットします。よろしいですか？')) return;
+  await clearAllQueues();showToast('全キューをクリアしました');
+}
+async function doResetCounter(){
+  if(!confirm('整理番号を0にリセットしますか？')) return;
+  await resetCounter();showToast('カウンターをリセットしました','ok');
+}
+async function doResetVisitor(){
+  if(!confirm('来場者カウンターを0にリセットしますか？')) return;
+  await resetVisitorCount();showToast('来場者カウンターをリセットしました','ok');
+}
+
+function showToast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast '+(type||'');
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3200);
+}
+</script>
+</body>
+</html>
