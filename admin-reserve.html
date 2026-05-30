@@ -3,376 +3,405 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>CASINO ROYALE – 予約管理</title>
+<title>CASINO ROYALE – 予約・受付管理</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --gold:#f0c040;--gold2:#ffd700;--neon:#00ffe7;--dark:#05080f;
-  --card:#0b1120;--border:rgba(240,192,64,.25);--glow:0 0 18px rgba(240,192,64,.5);
-  --danger:#ff4c6a;
-}
+:root{--gold:#f0c040;--gold2:#ffd700;--neon:#00ffe7;--dark:#05080f;--card:#0b1120;--border:rgba(240,192,64,.25);--glow:0 0 18px rgba(240,192,64,.5);--danger:#ff4c6a;--green:#5dde8a}
 html,body{min-height:100vh}
 body{background:var(--dark);color:#e8dfc0;font-family:'Rajdhani',sans-serif;overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;z-index:0;
-  background:linear-gradient(rgba(0,255,231,.04) 1px,transparent 1px),
-             linear-gradient(90deg,rgba(0,255,231,.04) 1px,transparent 1px);
-  background-size:60px 60px;pointer-events:none}
+body::before{content:'';position:fixed;inset:0;z-index:0;background:linear-gradient(rgba(0,255,231,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,231,.04) 1px,transparent 1px);background-size:60px 60px;pointer-events:none}
 .wrapper{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 20px 80px}
 
-/* Login */
-#loginScreen{position:fixed;inset:0;z-index:200;background:var(--dark);
-  display:flex;align-items:center;justify-content:center}
-.login-box{background:var(--card);border:1px solid var(--gold);border-radius:4px;
-  padding:48px 40px;text-align:center;min-width:320px;position:relative;overflow:hidden}
-.login-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
-  background:linear-gradient(90deg,transparent,var(--gold2),transparent)}
-.login-sub{font-family:'Orbitron',monospace;font-size:.6rem;letter-spacing:.4em;color:var(--neon);margin-bottom:8px}
-.login-logo{font-family:'Orbitron',monospace;font-size:1.5rem;font-weight:900;
-  background:linear-gradient(135deg,var(--gold2),var(--gold));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  display:block;margin-bottom:6px}
-.login-logo2{font-family:'Orbitron',monospace;font-size:.8rem;color:var(--neon);letter-spacing:.2em;display:block;margin-bottom:28px}
-.login-lbl{font-family:'Orbitron',monospace;font-size:.52rem;letter-spacing:.22em;
-  color:rgba(232,223,192,.35);margin-bottom:8px;display:block}
-.login-input{background:rgba(0,0,0,.5);border:1px solid var(--border);border-radius:3px;
-  color:#e8dfc0;font-family:'Rajdhani',sans-serif;font-size:1.2rem;
-  padding:12px 16px;width:100%;text-align:center;letter-spacing:.3em;outline:none;transition:border-color .2s}
-.login-input:focus{border-color:var(--gold)}
-.login-btn{margin-top:18px;width:100%;padding:12px;font-family:'Orbitron',monospace;
-  font-size:.68rem;letter-spacing:.18em;
-  background:linear-gradient(135deg,var(--gold2),var(--gold));
-  color:var(--dark);border:none;border-radius:3px;cursor:pointer;transition:all .25s}
-.login-btn:hover{box-shadow:0 0 24px rgba(240,192,64,.4)}
-.login-err{margin-top:12px;font-family:'Orbitron',monospace;font-size:.58rem;letter-spacing:.12em;
-  color:var(--danger);opacity:0;transition:opacity .3s}
-.login-err.show{opacity:1}
+header{text-align:center;padding:36px 0 20px}
+.logo-sub{font-family:'Orbitron',monospace;font-size:.6rem;letter-spacing:.4em;color:var(--neon);opacity:.8;margin-bottom:7px}
+h1{font-family:'Orbitron',monospace;font-size:clamp(1.3rem,4vw,2.6rem);font-weight:900;background:linear-gradient(135deg,var(--gold2),var(--gold),#c8860a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 12px rgba(240,192,64,.4));letter-spacing:.05em}
+.subtitle{margin-top:6px;font-size:.75rem;letter-spacing:.3em;color:var(--neon);opacity:.7}
+.header-deco{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:10px}
+.header-deco span{display:inline-block;height:1px;width:70px;background:linear-gradient(90deg,transparent,var(--neon),transparent)}
+.suit{font-size:1rem;color:var(--neon)}
 
-/* Header */
-header{text-align:center;padding:40px 0 22px}
-.logo-sub{font-family:'Orbitron',monospace;font-size:.62rem;letter-spacing:.4em;color:var(--neon);opacity:.8;margin-bottom:8px}
-h1{font-family:'Orbitron',monospace;font-size:clamp(1.4rem,4vw,2.8rem);font-weight:900;
-  background:linear-gradient(135deg,var(--gold2),var(--gold),#c8860a);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  filter:drop-shadow(0 0 12px rgba(240,192,64,.4));letter-spacing:.05em}
-.subtitle{margin-top:6px;font-size:.78rem;letter-spacing:.35em;color:rgba(232,223,192,.35)}
-.header-deco{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:12px}
-.header-deco span{display:inline-block;height:1px;width:70px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
-.suit{font-size:1rem;color:var(--gold)}
-
-nav{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:28px}
-nav a{font-family:'Orbitron',monospace;font-size:.6rem;letter-spacing:.1em;color:var(--neon);
-  text-decoration:none;border:1px solid var(--neon);padding:6px 14px;border-radius:2px;transition:all .25s}
-nav a:hover,nav a.active{background:var(--neon);color:var(--dark);box-shadow:0 0 14px var(--neon)}
+nav{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:24px}
+nav a,nav button{font-family:'Orbitron',monospace;font-size:.58rem;letter-spacing:.1em;color:var(--neon);text-decoration:none;border:1px solid var(--neon);padding:6px 14px;border-radius:2px;transition:all .25s;background:transparent;cursor:pointer}
+nav a:hover,nav a.active,nav button:hover{background:var(--neon);color:var(--dark);box-shadow:0 0 14px var(--neon)}
+nav .back{color:rgba(232,223,192,.45);border-color:rgba(232,223,192,.2)}
+nav .back:hover{background:rgba(232,223,192,.08);color:rgba(232,223,192,.8);box-shadow:none}
 
 /* Stats */
-.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:24px}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:22px}
 .stat-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:14px;text-align:center}
-.stat-val{font-family:'Orbitron',monospace;font-size:1.9rem;font-weight:700;color:var(--gold2);line-height:1}
+.stat-val{font-family:'Orbitron',monospace;font-size:2rem;font-weight:700;line-height:1}
+.stat-val.green{color:var(--green)}
 .stat-val.neon{color:var(--neon)}
+.stat-val.gold{color:var(--gold2)}
 .stat-val.danger{color:var(--danger)}
-.stat-lbl{font-size:.62rem;color:rgba(232,223,192,.35);letter-spacing:.1em;margin-top:4px}
+.stat-lbl{font-size:.6rem;color:rgba(232,223,192,.32);letter-spacing:.1em;margin-top:4px}
 
 /* Tabs */
-.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:24px;gap:2px}
-.tab-btn{font-family:'Orbitron',monospace;font-size:.58rem;letter-spacing:.12em;
-  padding:10px 18px;background:transparent;border:none;border-bottom:2px solid transparent;
-  color:rgba(232,223,192,.35);cursor:pointer;transition:all .2s}
-.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
-.tab-btn:hover:not(.active){color:rgba(232,223,192,.6)}
+.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:22px;gap:0}
+.tab-btn{font-family:'Orbitron',monospace;font-size:.58rem;letter-spacing:.12em;padding:11px 20px;background:transparent;border:none;border-bottom:2px solid transparent;color:rgba(232,223,192,.35);cursor:pointer;transition:all .2s;white-space:nowrap}
+.tab-btn.active{color:var(--neon);border-bottom-color:var(--neon)}
+.tab-btn:hover:not(.active){color:rgba(232,223,192,.65)}
 .tab-panel{display:none}
 .tab-panel.active{display:block}
 
-.section-title{font-family:'Orbitron',monospace;font-size:.58rem;letter-spacing:.32em;
-  color:var(--neon);margin-bottom:16px}
+.section-title{font-family:'Orbitron',monospace;font-size:.58rem;letter-spacing:.3em;color:var(--neon);margin-bottom:14px}
 
-/* Queue */
-.queue-section{margin-bottom:24px}
-.queue-hdr{display:flex;align-items:center;justify-content:space-between;
-  background:rgba(240,192,64,.05);border:1px solid var(--border);border-bottom:none;
-  border-radius:4px 4px 0 0;padding:10px 14px}
-.q-title{font-family:'Orbitron',monospace;font-size:.68rem;letter-spacing:.12em;color:var(--gold)}
-.q-count{font-size:.68rem;color:rgba(232,223,192,.35)}
-.queue-table{width:100%;border-collapse:collapse;background:var(--card);
-  border:1px solid var(--border);border-radius:0 0 4px 4px;overflow:hidden}
-.queue-table th{font-family:'Orbitron',monospace;font-size:.52rem;letter-spacing:.12em;
-  color:rgba(232,223,192,.35);padding:7px 12px;border-bottom:1px solid var(--border);
-  text-align:left;background:rgba(0,0,0,.2)}
-.queue-table td{padding:9px 12px;border-bottom:1px solid rgba(240,192,64,.04);font-size:.85rem;vertical-align:middle}
-.queue-table tr:last-child td{border-bottom:none}
-.queue-table tr.row-called{background:rgba(0,255,231,.03)}
-.num-badge{font-family:'Orbitron',monospace;font-size:.78rem;font-weight:700;
-  background:linear-gradient(135deg,var(--gold2),var(--gold));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+/* Issue box */
+.issue-box{background:var(--card);border:1px solid rgba(0,255,231,.3);border-radius:4px;padding:20px 24px;margin-bottom:22px;position:relative;overflow:hidden}
+.issue-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--neon),transparent)}
+.issue-grid{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end}
+.f-lbl{font-family:'Orbitron',monospace;font-size:.5rem;letter-spacing:.14em;color:rgba(232,223,192,.35);margin-bottom:5px;display:block}
+.f-inp{background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:3px;color:#e8dfc0;font-family:'Rajdhani',sans-serif;font-size:.95rem;padding:9px 12px;width:100%;outline:none;transition:border-color .2s}
+.f-inp:focus{border-color:var(--neon);box-shadow:0 0 8px rgba(0,255,231,.1)}
+.f-sel{background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:3px;color:#e8dfc0;font-family:'Rajdhani',sans-serif;font-size:.95rem;padding:9px 12px;width:100%;outline:none}
+.f-sel option{background:#0b1120}
+.btn-issue{font-family:'Orbitron',monospace;font-size:.6rem;letter-spacing:.12em;padding:10px 18px;background:rgba(0,255,231,.1);border:1px solid var(--neon);color:var(--neon);border-radius:3px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.btn-issue:hover{background:rgba(0,255,231,.2);box-shadow:0 0 12px rgba(0,255,231,.2)}
+.nick-hint{font-size:.7rem;margin-top:4px;min-height:16px}
+.nick-hint.ok{color:var(--neon)}
+.nick-hint.warn{color:var(--gold)}
+
+/* Issued result */
+.issued-result{background:rgba(0,255,231,.05);border:1px solid rgba(0,255,231,.2);border-radius:3px;padding:14px 18px;margin-top:14px;display:none;align-items:center;gap:16px}
+.issued-result.show{display:flex}
+.ir-num{font-family:'Orbitron',monospace;font-size:2.8rem;font-weight:900;background:linear-gradient(135deg,var(--gold2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;flex-shrink:0}
+.ir-info{flex:1;font-size:.85rem}
+.ir-info strong{color:var(--neon);font-size:1rem}
+.ir-info span{display:block;font-size:.72rem;color:rgba(232,223,192,.4);margin-top:3px;font-family:'Orbitron',monospace;letter-spacing:.08em}
+.btn-next{margin-top:12px;width:100%;padding:10px;font-family:'Orbitron',monospace;font-size:.62rem;letter-spacing:.15em;background:transparent;border:1px solid rgba(0,255,231,.3);color:var(--neon);border-radius:3px;cursor:pointer;transition:all .2s}
+.btn-next:hover{background:rgba(0,255,231,.07)}
+
+/* Queue table */
+.queue-section{margin-bottom:20px}
+.queue-hdr{display:flex;align-items:center;justify-content:space-between;background:rgba(0,255,231,.04);border:1px solid var(--border);border-bottom:none;border-radius:4px 4px 0 0;padding:9px 14px}
+.q-title{font-family:'Orbitron',monospace;font-size:.65rem;letter-spacing:.12em;color:var(--neon)}
+.q-count{font-size:.65rem;color:rgba(232,223,192,.32)}
+table.qt{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:0 0 4px 4px;overflow:hidden}
+table.qt th{font-family:'Orbitron',monospace;font-size:.5rem;letter-spacing:.12em;color:rgba(232,223,192,.3);padding:7px 12px;border-bottom:1px solid var(--border);text-align:left;background:rgba(0,0,0,.18)}
+table.qt td{padding:9px 12px;border-bottom:1px solid rgba(0,255,231,.04);font-size:.84rem;vertical-align:middle}
+table.qt tr:last-child td{border-bottom:none}
+table.qt tr.called{background:rgba(0,255,231,.03)}
+.num-b{font-family:'Orbitron',monospace;font-size:.76rem;font-weight:700;background:linear-gradient(135deg,var(--gold2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:middle}
-.dot.waiting{background:var(--gold);box-shadow:0 0 5px var(--gold)}
-.dot.called{background:var(--neon);box-shadow:0 0 7px var(--neon);animation:dp 1.2s infinite}
+.dot.w{background:var(--gold);box-shadow:0 0 5px var(--gold)}
+.dot.c{background:var(--neon);box-shadow:0 0 6px var(--neon);animation:dp 1.2s infinite}
 @keyframes dp{0%,100%{opacity:1}50%{opacity:.3}}
-.act-btn{font-family:'Orbitron',monospace;font-size:.5rem;letter-spacing:.08em;
-  padding:5px 9px;border-radius:2px;cursor:pointer;transition:all .2s;border:1px solid}
+.act-btn{font-family:'Orbitron',monospace;font-size:.48rem;letter-spacing:.07em;padding:4px 9px;border-radius:2px;cursor:pointer;transition:all .2s;border:1px solid}
 .btn-call{color:var(--neon);border-color:rgba(0,255,231,.4);background:rgba(0,255,231,.05)}
 .btn-call:hover{background:rgba(0,255,231,.14)}
 .btn-uncall{color:var(--gold);border-color:rgba(240,192,64,.4);background:rgba(240,192,64,.05)}
 .btn-del{color:var(--danger);border-color:rgba(255,76,106,.3);background:transparent;margin-left:3px}
 .btn-del:hover{background:rgba(255,76,106,.08)}
-.empty-row td{text-align:center;padding:18px;color:rgba(232,223,192,.2);
-  font-family:'Orbitron',monospace;font-size:.65rem;letter-spacing:.15em}
+.empty-row td{text-align:center;padding:18px;color:rgba(232,223,192,.18);font-family:'Orbitron',monospace;font-size:.62rem;letter-spacing:.14em}
+
+/* Visitor list */
+.visitor-search{background:rgba(0,0,0,.35);border:1px solid var(--border);border-radius:3px;color:#e8dfc0;font-family:'Rajdhani',sans-serif;font-size:.9rem;padding:9px 13px;width:100%;outline:none;margin-bottom:12px}
+.visitor-search::placeholder{color:rgba(232,223,192,.28)}
+table.vt{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:4px;overflow:hidden}
+table.vt th{font-family:'Orbitron',monospace;font-size:.5rem;letter-spacing:.12em;color:rgba(232,223,192,.3);padding:7px 12px;border-bottom:1px solid var(--border);text-align:left;background:rgba(0,0,0,.18)}
+table.vt td{padding:8px 12px;border-bottom:1px solid rgba(240,192,64,.04);font-size:.84rem}
+table.vt tr:last-child td{border-bottom:none}
 
 /* Config */
-.config-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:14px;margin-bottom:20px}
+.config-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-bottom:18px}
 .config-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:18px}
-.cfg-title{font-family:'Orbitron',monospace;font-size:.68rem;letter-spacing:.1em;
-  color:var(--gold);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.cfg-title{font-family:'Orbitron',monospace;font-size:.67rem;letter-spacing:.1em;color:var(--gold);margin-bottom:13px;display:flex;align-items:center;justify-content:space-between}
 .cfg-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px}
-.cfg-lbl{font-size:.75rem;color:rgba(232,223,192,.55);flex:1;line-height:1.3}
-.cfg-input{background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:3px;
-  color:#e8dfc0;font-family:'Orbitron',monospace;font-size:.75rem;padding:5px 9px;
-  width:68px;text-align:center;outline:none}
-.cfg-input:focus{border-color:var(--gold)}
+.cfg-lbl{font-size:.74rem;color:rgba(232,223,192,.52);flex:1;line-height:1.3}
+.cfg-inp{background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:3px;color:#e8dfc0;font-family:'Orbitron',monospace;font-size:.72rem;padding:5px 9px;width:66px;text-align:center;outline:none}
+.cfg-inp:focus{border-color:var(--gold)}
 .toggle{position:relative;width:36px;height:19px;flex-shrink:0}
 .toggle input{opacity:0;width:0;height:0;position:absolute}
-.tog-slider{position:absolute;cursor:pointer;inset:0;background:rgba(255,76,106,.2);
-  border:1px solid rgba(255,76,106,.4);border-radius:10px;transition:.25s}
-.tog-slider:before{content:'';position:absolute;width:13px;height:13px;left:2px;bottom:2px;
-  background:var(--danger);border-radius:50%;transition:.25s}
-.toggle input:checked+.tog-slider{background:rgba(0,255,231,.15);border-color:rgba(0,255,231,.4)}
-.toggle input:checked+.tog-slider:before{transform:translateX(17px);background:var(--neon)}
-.open-lbl{font-size:.68rem;letter-spacing:.06em}
+.tog-sl{position:absolute;cursor:pointer;inset:0;background:rgba(255,76,106,.2);border:1px solid rgba(255,76,106,.4);border-radius:10px;transition:.25s}
+.tog-sl::before{content:'';position:absolute;width:13px;height:13px;left:2px;bottom:2px;background:var(--danger);border-radius:50%;transition:.25s}
+.toggle input:checked+.tog-sl{background:rgba(0,255,231,.15);border-color:rgba(0,255,231,.4)}
+.toggle input:checked+.tog-sl::before{transform:translateX(17px);background:var(--neon)}
+.open-lbl{font-size:.67rem;letter-spacing:.06em}
 .open-lbl.on{color:var(--neon)}
 .open-lbl.off{color:var(--danger)}
-
-/* Add game / manual */
-.add-box{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:18px 22px;margin-bottom:20px}
-.add-grid{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:10px;align-items:end}
-.add-grid2{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:end}
-.f-lbl{font-family:'Orbitron',monospace;font-size:.5rem;letter-spacing:.15em;
-  color:rgba(232,223,192,.35);margin-bottom:5px;display:block}
-.f-inp{background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:3px;
-  color:#e8dfc0;font-family:'Rajdhani',sans-serif;font-size:.9rem;padding:8px 11px;width:100%;outline:none}
-.f-inp:focus{border-color:var(--gold)}
-.f-sel{background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:3px;
-  color:#e8dfc0;font-family:'Rajdhani',sans-serif;font-size:.9rem;padding:8px 11px;width:100%;outline:none}
-.f-sel option{background:#0b1120}
-.btn-add{font-family:'Orbitron',monospace;font-size:.58rem;letter-spacing:.1em;
-  padding:9px 14px;background:rgba(240,192,64,.08);border:1px solid var(--gold);
-  color:var(--gold);border-radius:2px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.add-game-box{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:16px 20px;margin-bottom:16px}
+.add-game-grid{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:10px;align-items:end}
+.btn-add{font-family:'Orbitron',monospace;font-size:.58rem;letter-spacing:.1em;padding:9px 14px;background:rgba(240,192,64,.08);border:1px solid var(--gold);color:var(--gold);border-radius:2px;cursor:pointer;transition:all .2s}
 .btn-add:hover{background:rgba(240,192,64,.18)}
-.btn-danger{font-family:'Orbitron',monospace;font-size:.56rem;letter-spacing:.08em;
-  padding:7px 12px;background:rgba(255,76,106,.06);border:1px solid rgba(255,76,106,.3);
-  color:var(--danger);border-radius:2px;cursor:pointer;transition:all .2s}
-.btn-danger:hover{background:rgba(255,76,106,.12)}
-.btn-sm-del{font-family:'Orbitron',monospace;font-size:.48rem;padding:3px 8px;
-  background:transparent;border:1px solid rgba(255,76,106,.3);color:var(--danger);
-  border-radius:2px;cursor:pointer;transition:all .2s}
+.btn-sm-del{font-family:'Orbitron',monospace;font-size:.46rem;padding:3px 7px;background:transparent;border:1px solid rgba(255,76,106,.3);color:var(--danger);border-radius:2px;cursor:pointer}
 .btn-sm-del:hover{background:rgba(255,76,106,.1)}
 
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
-  z-index:300;background:rgba(11,17,32,.98);border:1px solid var(--gold);border-radius:3px;
-  padding:9px 20px;font-family:'Orbitron',monospace;font-size:.6rem;letter-spacing:.14em;
-  color:var(--gold);opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap}
+/* filter select */
+.filter-sel{background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:3px;color:#e8dfc0;font-family:'Rajdhani',sans-serif;font-size:.82rem;padding:5px 9px;outline:none}
+.filter-sel option{background:#0b1120}
+
+/* util */
+.util-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.btn-util{font-family:'Orbitron',monospace;font-size:.55rem;letter-spacing:.08em;padding:7px 12px;background:rgba(255,76,106,.06);border:1px solid rgba(255,76,106,.3);color:var(--danger);border-radius:2px;cursor:pointer;transition:all .2s}
+.btn-util:hover{background:rgba(255,76,106,.14)}
+.btn-util.gold{background:rgba(240,192,64,.06);border-color:rgba(240,192,64,.3);color:var(--gold)}
+
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);z-index:300;background:rgba(11,17,32,.98);border:1px solid var(--gold);border-radius:3px;padding:9px 20px;font-family:'Orbitron',monospace;font-size:.6rem;letter-spacing:.13em;color:var(--gold);opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.err{border-color:var(--danger);color:var(--danger)}
 .toast.ok{border-color:var(--neon);color:var(--neon)}
-
-footer{text-align:center;padding:40px 0 0;font-size:.62rem;letter-spacing:.2em;color:rgba(232,223,192,.18)}
-
-@media(max-width:700px){
-  .add-grid,.add-grid2{grid-template-columns:1fr 1fr}
-  .config-grid{grid-template-columns:1fr}
-  .stats-row{grid-template-columns:1fr 1fr}
-}
+footer{text-align:center;padding:36px 0 0;font-size:.62rem;letter-spacing:.2em;color:rgba(232,223,192,.18)}
+@media(max-width:700px){.add-game-grid{grid-template-columns:1fr 1fr}.issue-grid{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
-
-<!-- ログイン画面 -->
-<div id="loginScreen">
-  <div class="login-box">
-    <span class="login-sub">Staff Only</span>
-    <span class="login-logo">CASINO ROYALE</span>
-    <span class="login-logo2">予約管理パネル</span>
-    <label class="login-lbl">パスワードを入力</label>
-    <input class="login-input" id="pwInput" type="password" placeholder="••••••">
-    <button class="login-btn" onclick="doLogin()">ENTER ▶</button>
-    <div class="login-err" id="loginErr">パスワードが違います</div>
-  </div>
-</div>
-
-<div class="wrapper" id="mainContent" style="display:none;">
+<div class="wrapper">
   <header>
-    <p class="logo-sub">Admin Panel – Reservation</p>
+    <p class="logo-sub">Admin – Reservation</p>
     <h1>CASINO ROYALE</h1>
-    <p class="subtitle">予約管理コントロール</p>
-    <div class="header-deco"><span></span><span class="suit">⚙ ♠ ⚙</span><span></span></div>
+    <p class="subtitle">🎫 予約 · 受付管理</p>
+    <div class="header-deco"><span></span><span class="suit">🎫 ♠ 🎫</span><span></span></div>
   </header>
 
   <nav>
+    <a href="admin.html" class="back">← 管理メニュー</a>
     <a href="index.html">🏠 TOP</a>
-    <a href="ranking.html">🏆 ランキング</a>
-    <a href="reserve.html">🎫 予約</a>
-    <a href="admin.html">📊 ランキング管理</a>
-    <a href="admin-reserve.html" class="active">⚙ 予約管理</a>
+    <a href="reserve.html">来場者予約ページ</a>
+    <a href="reception.html">受付ページ</a>
   </nav>
 
+  <!-- Stats -->
   <div class="stats-row">
-    <div class="stat-card"><div class="stat-val" id="statTotal">0</div><div class="stat-lbl">本日発券数</div></div>
+    <div class="stat-card"><div class="stat-val green" id="statVisitor">0</div><div class="stat-lbl">本日来場者</div></div>
+    <div class="stat-card"><div class="stat-val gold" id="statTicket">0</div><div class="stat-lbl">発券数</div></div>
     <div class="stat-card"><div class="stat-val neon" id="statWaiting">0</div><div class="stat-lbl">現在待ち</div></div>
     <div class="stat-card"><div class="stat-val danger" id="statCalled">0</div><div class="stat-lbl">呼出済み</div></div>
-    <div class="stat-card"><div class="stat-val" id="statGames">0</div><div class="stat-lbl">稼働ゲーム</div></div>
+    <div class="stat-card"><div class="stat-val" id="statGames" style="color:var(--gold2);">0</div><div class="stat-lbl">稼働ゲーム</div></div>
   </div>
 
+  <!-- Tabs -->
   <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('queue')">待ち管理</button>
-    <button class="tab-btn" onclick="switchTab('config')">ゲーム設定</button>
-    <button class="tab-btn" onclick="switchTab('manual')">手動追加 / リセット</button>
+    <button class="tab-btn active" onclick="switchTab('reception')">📋 受付発行</button>
+    <button class="tab-btn" onclick="switchTab('queue')">⏳ 待ち管理</button>
+    <button class="tab-btn" onclick="switchTab('visitors')">👥 来場者一覧</button>
+    <button class="tab-btn" onclick="switchTab('config')">⚙ ゲーム設定</button>
+    <button class="tab-btn" onclick="switchTab('util')">🔧 リセット</button>
   </div>
 
-  <!-- 待ち管理 -->
-  <div class="tab-panel active" id="tab-queue">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+  <!-- ===== 受付発行 ===== -->
+  <div class="tab-panel active" id="tab-reception">
+    <div class="section-title">▸ 受付 – 整理券発行</div>
+    <p style="font-size:.78rem;color:rgba(232,223,192,.38);margin-bottom:14px;line-height:1.6;">ウォークイン来場者にスタッフが発行します。ニックネームを登録し整理券を発行すると来場者数にカウントされます。</p>
+    <div class="issue-box">
+      <div class="issue-grid">
+        <div>
+          <label class="f-lbl">ニックネーム</label>
+          <input class="f-inp" id="issueNick" type="text" placeholder="例: Tanaka" maxlength="20" autocomplete="off">
+          <div class="nick-hint" id="issueHint"></div>
+        </div>
+        <div>
+          <label class="f-lbl">ゲーム（任意）</label>
+          <select class="f-sel" id="issueGame">
+            <option value="">-- 指定なし --</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:flex-end;padding-bottom:20px;">
+          <button class="btn-issue" onclick="doIssue()">発行 ▶</button>
+        </div>
+      </div>
+      <div class="issued-result" id="issuedResult">
+        <div class="ir-num" id="irNum">---</div>
+        <div class="ir-info">
+          <strong id="irNick">---</strong>
+          <span id="irGame">---</span>
+          <span id="irVisitor">---</span>
+        </div>
+      </div>
+      <button class="btn-next" id="btnNext" style="display:none;" onclick="nextGuest()">▶ 次の来場者</button>
+    </div>
+  </div>
+
+  <!-- ===== 待ち管理 ===== -->
+  <div class="tab-panel" id="tab-queue">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
       <div class="section-title" style="margin:0;">▸ キュー一覧</div>
-      <select class="f-sel" id="queueFilter" onchange="renderQueue()" style="width:auto;font-size:.75rem;padding:5px 10px;">
+      <select class="filter-sel" id="queueFilter" onchange="renderQueue()">
         <option value="all">全ゲーム</option>
       </select>
     </div>
     <div id="queuePanels"></div>
   </div>
 
-  <!-- ゲーム設定 -->
+  <!-- ===== 来場者一覧 ===== -->
+  <div class="tab-panel" id="tab-visitors">
+    <div class="section-title">▸ 来場者一覧</div>
+    <input class="visitor-search" id="visitorSearch" type="text" placeholder="🔍 名前で検索..." oninput="renderVisitors()">
+    <table class="vt">
+      <thead><tr><th>来場番号</th><th>ニックネーム</th><th>整理番号</th><th>登録時刻</th></tr></thead>
+      <tbody id="visitorBody"></tbody>
+    </table>
+  </div>
+
+  <!-- ===== ゲーム設定 ===== -->
   <div class="tab-panel" id="tab-config">
     <div class="section-title">▸ ゲーム設定</div>
-    <div class="add-box">
-      <div class="section-title" style="margin-bottom:12px;font-size:.52rem;">新しいゲームを追加</div>
-      <div class="add-grid">
-        <div><label class="f-lbl">ゲーム名</label><input class="f-inp" id="newName" placeholder="例: ルーレット"></div>
-        <div><label class="f-lbl">テーブル数</label><input class="f-inp" id="newTables" type="number" value="2" min="1"></div>
-        <div><label class="f-lbl">収容人数</label><input class="f-inp" id="newCap" type="number" value="4" min="1"></div>
+    <div class="add-game-box">
+      <div class="add-game-grid">
+        <div><label class="f-lbl">ゲーム名</label><input class="f-inp" id="newGameName" placeholder="例: ルーレット"></div>
+        <div><label class="f-lbl">テーブル数</label><input class="f-inp" id="newGameTables" type="number" value="2" min="1"></div>
+        <div><label class="f-lbl">収容人数</label><input class="f-inp" id="newGameCap" type="number" value="4" min="1"></div>
         <div style="display:flex;align-items:flex-end;"><button class="btn-add" onclick="doAddGame()">+ 追加</button></div>
       </div>
     </div>
     <div class="config-grid" id="configGrid"></div>
   </div>
 
-  <!-- 手動追加 -->
-  <div class="tab-panel" id="tab-manual">
-    <div class="section-title">▸ 手動で整理券を追加</div>
-    <div class="add-box">
-      <div class="add-grid2">
-        <div><label class="f-lbl">ゲーム</label><select class="f-sel" id="manGame"></select></div>
-        <div><label class="f-lbl">名前</label><input class="f-inp" id="manName" placeholder="Tanaka"></div>
-        <div><label class="f-lbl">人数</label>
-          <select class="f-sel" id="manCount">
-            <option>1</option><option>2</option><option>3</option><option>4</option><option value="5">5+</option>
-          </select>
-        </div>
-        <div style="display:flex;align-items:flex-end;"><button class="btn-add" onclick="doManualAdd()">+ 追加</button></div>
-      </div>
+  <!-- ===== リセット ===== -->
+  <div class="tab-panel" id="tab-util">
+    <div class="section-title">▸ キューリセット</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+      <select class="filter-sel" id="clearGameSel"></select>
+      <button class="btn-util" onclick="doClearOne()">選択ゲームをクリア</button>
+      <button class="btn-util" onclick="doClearAll()">全キューをリセット</button>
     </div>
-    <div class="section-title">▸ リセット操作</div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      <button class="btn-danger" onclick="doGameClear()">選択ゲームのキューをクリア</button>
-      <button class="btn-danger" onclick="doAllClear()">全キューをリセット</button>
-      <button class="btn-danger" style="border-color:rgba(240,192,64,.3);color:var(--gold);" onclick="doResetCounter()">整理番号をリセット</button>
-    </div>
-    <div style="margin-top:12px;">
-      <select class="f-sel" id="clearGameSel" style="width:auto;"></select>
+    <div class="section-title">▸ カウンターリセット</div>
+    <div class="util-row">
+      <button class="btn-util gold" onclick="doResetCounter()">整理番号をリセット</button>
+      <button class="btn-util gold" onclick="doResetVisitor()">来場者カウンターをリセット</button>
     </div>
   </div>
 </div>
 
+<datalist id="nicknameList"></datalist>
 <div class="toast" id="toast"></div>
-<footer><p>© 2025 Casino Royale – Admin Panel</p></footer>
+<footer><p>© 2025 Casino Royale – Admin / Reservation</p></footer>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script src="data.js"></script>
 <script>
-let authed=false, gamesData={}, queuesData={}, counterVal=0;
-
-// ログイン
-document.getElementById('pwInput').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
-function doLogin(){
-  if(document.getElementById('pwInput').value===ADMIN_PASSWORD){
-    document.getElementById('loginScreen').style.display='none';
-    document.getElementById('mainContent').style.display='block';
-    authed=true;
-    initDefaultReservationGames().then(()=>{startListeners();});
-  } else {
-    const err=document.getElementById('loginErr');
-    err.classList.add('show');
-    setTimeout(()=>err.classList.remove('show'),2000);
-    document.getElementById('pwInput').value='';
-  }
-}
-
-function startListeners(){
-  onGamesChange(d=>{gamesData=d;renderQueue();renderConfig();renderStats();populateSelects();});
-  onQueuesChange(d=>{queuesData=d;renderQueue();renderStats();});
-  onCounterChange(v=>{counterVal=v;renderStats();});
+// セッションチェック
+if(sessionStorage.getItem('adminAuthed')!=='1'){
+  location.href='admin.html';
 }
 
 const ICONS={'ポーカー':'🃏','チンチロ':'🎲','ブラックジャック':'🂡','競馬':'🏇'};
+let gamesData={}, queuesData={}, nicksData={}, counterVal=0, visitorVal=0;
+let nickTimer=null;
+
+initDefaultReservationGames();
+attachNicknameAutocomplete(document.getElementById('issueNick'),'nicknameList');
+
+onGamesChange(d=>{gamesData=d;populateSelects();renderConfig();renderStats();});
+onQueuesChange(d=>{queuesData=d;renderQueue();renderStats();});
+onNicknamesChange(d=>{nicksData=d;renderVisitors();});
+onCounterChange(v=>{counterVal=v;document.getElementById('statTicket').textContent=v||0;});
+onVisitorCountChange(v=>{visitorVal=v;document.getElementById('statVisitor').textContent=v||0;});
+
+// Nick check (staff mode: always can issue)
+document.getElementById('issueNick').addEventListener('input',()=>{
+  clearTimeout(nickTimer);
+  const val=document.getElementById('issueNick').value.trim();
+  const hint=document.getElementById('issueHint');
+  if(!val){hint.textContent='';hint.className='nick-hint';return;}
+  hint.textContent='確認中...';hint.className='nick-hint';
+  nickTimer=setTimeout(async()=>{
+    const exists=await nicknameExists(val);
+    if(exists){
+      hint.textContent='⚠ 登録済みです（発行は続行可）';
+      hint.className='nick-hint warn';
+    } else {
+      hint.textContent='✓ 未登録のニックネーム';
+      hint.className='nick-hint ok';
+    }
+  },380);
+});
 
 function renderStats(){
   let waiting=0,called=0,open=0;
-  Object.keys(gamesData).forEach(g=>{
-    if(gamesData[g].open) open++;
+  Object.keys(gamesData).forEach(g=>{if(gamesData[g].open)open++;});
+  Object.keys(queuesData).forEach(g=>{
     sortedQueue(queuesData,g).forEach(e=>{e.called?called++:waiting++;});
   });
-  document.getElementById('statTotal').textContent=counterVal;
   document.getElementById('statWaiting').textContent=waiting;
   document.getElementById('statCalled').textContent=called;
   document.getElementById('statGames').textContent=open;
 }
 
+async function doIssue(){
+  const nick=document.getElementById('issueNick').value.trim();
+  const game=document.getElementById('issueGame').value||'__reception__';
+  if(!nick){showToast('ニックネームを入力してください','err');return;}
+  try{
+    const {num,key,visitorNum}=await enqueue(game,nick,true);
+    document.getElementById('irNum').textContent=String(num).padStart(3,'0');
+    document.getElementById('irNick').textContent=nick+' 様';
+    document.getElementById('irGame').textContent=game==='__reception__'?'ゲーム未指定':(ICONS[game]||'')+'  '+game;
+    document.getElementById('irVisitor').textContent='来場者番号 '+String(visitorNum).padStart(4,'0');
+    document.getElementById('issuedResult').classList.add('show');
+    document.getElementById('btnNext').style.display='block';
+    showToast(`整理券 ${String(num).padStart(3,'0')} を発行しました`,'ok');
+  }catch(e){showToast('エラー: '+e.message,'err');console.error(e);}
+}
+
+function nextGuest(){
+  document.getElementById('issueNick').value='';
+  document.getElementById('issueHint').textContent='';
+  document.getElementById('issueHint').className='nick-hint';
+  document.getElementById('issuedResult').classList.remove('show');
+  document.getElementById('btnNext').style.display='none';
+  document.getElementById('issueNick').focus();
+}
+
 function renderQueue(){
   const filter=document.getElementById('queueFilter')?.value||'all';
   const panel=document.getElementById('queuePanels');
-  const games=Object.keys(gamesData);
-  if(!games.length){panel.innerHTML='<p style="color:rgba(232,223,192,.25);text-align:center;padding:30px;font-size:.8rem;">ゲームが設定されていません</p>';return;}
-  const targets=filter==='all'?games:[filter];
-  panel.innerHTML=targets.map(game=>{
+  const allGames=[...Object.keys(gamesData),'__reception__'];
+  const targets=filter==='all'?allGames:[filter];
+  const sections=targets.map(game=>{
     const q=sortedQueue(queuesData,game);
+    if(q.length===0&&game==='__reception__') return '';
+    const label=game==='__reception__'?'受付（ゲーム未指定）':(ICONS[game]||'🎴')+' '+game;
     const rows=q.length===0
-      ?`<tr class="empty-row"><td colspan="6">— 待ちなし —</td></tr>`
+      ?`<tr class="empty-row"><td colspan="5">— 待ちなし —</td></tr>`
       :q.map(e=>{
         const ago=Math.floor((Date.now()-e.ts)/60000);
         const agoStr=ago<1?'たった今':ago+'分前';
         const callBtn=e.called
           ?`<button class="act-btn btn-uncall" onclick="doUncall('${game}','${e.key}')">UNCALL</button>`
           :`<button class="act-btn btn-call" onclick="doCall('${game}','${e.key}')">CALL</button>`;
-        return`<tr class="${e.called?'row-called':''}">
-          <td><span class="num-badge">${String(e.num||0).padStart(3,'0')}</span></td>
-          <td><span class="dot ${e.called?'called':'waiting'}"></span>${e.called?'呼出中':'待機中'}</td>
-          <td>${e.name||'—'}</td>
-          <td>${e.count||1}名</td>
+        return`<tr class="${e.called?'called':''}">
+          <td><span class="num-b">${String(e.num||0).padStart(3,'0')}</span></td>
+          <td><span class="dot ${e.called?'c':'w'}"></span>${e.called?'呼出中':'待機中'}</td>
+          <td>${e.nickname||'—'}</td>
           <td style="font-size:.7rem;color:rgba(232,223,192,.35);">${agoStr}</td>
-          <td>${callBtn}<button class="act-btn btn-del" onclick="doDel('${game}','${e.key}')">DEL</button></td>
+          <td>${callBtn}<button class="act-btn btn-del" onclick="doDelQueue('${game}','${e.key}')">DEL</button></td>
         </tr>`;
       }).join('');
     return`<div class="queue-section">
-      <div class="queue-hdr">
-        <span class="q-title">${ICONS[game]||'🎴'} ${game}</span>
-        <span class="q-count">${q.length}組待ち</span>
-      </div>
-      <table class="queue-table">
-        <thead><tr><th>番号</th><th>状態</th><th>名前</th><th>人数</th><th>経過</th><th>操作</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-    </div>`;
+      <div class="queue-hdr"><span class="q-title">${label}</span><span class="q-count">${q.length}組待ち</span></div>
+      <table class="qt"><thead><tr><th>番号</th><th>状態</th><th>名前</th><th>経過</th><th>操作</th></tr></thead>
+      <tbody>${rows}</tbody></table></div>`;
   }).join('');
+  panel.innerHTML=sections||'<p style="color:rgba(232,223,192,.2);text-align:center;padding:28px;font-size:.78rem;">待ちなし</p>';
 }
 
-async function doCall(game,key){
-  await callGuest(game,key,true);showToast('📢 呼び出しました','ok');
-}
-async function doUncall(game,key){
-  await callGuest(game,key,false);showToast('呼出を取り消しました');
-}
-async function doDel(game,key){
-  if(!confirm('この整理券を削除しますか？')) return;
+async function doCall(game,key){await callGuest(game,key,true);showToast('📢 呼び出しました','ok');}
+async function doUncall(game,key){await callGuest(game,key,false);showToast('呼出を取り消しました');}
+async function doDelQueue(game,key){
+  if(!confirm('この整理券を削除しますか？'))return;
   await dequeue(game,key);showToast('削除しました');
+}
+
+function renderVisitors(){
+  const search=document.getElementById('visitorSearch').value.toLowerCase();
+  const body=document.getElementById('visitorBody');
+  const list=Object.values(nicksData)
+    .filter(n=>!search||n.display.toLowerCase().includes(search))
+    .sort((a,b)=>(b.visitorNum||0)-(a.visitorNum||0));
+  if(!list.length){body.innerHTML='<tr><td colspan="4" style="text-align:center;padding:16px;color:rgba(232,223,192,.18);font-family:Orbitron,monospace;font-size:.62rem;letter-spacing:.14em;">— データなし —</td></tr>';return;}
+  body.innerHTML=list.map(n=>{
+    const d=new Date(n.createdAt);
+    const time=`${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
+    return`<tr>
+      <td style="font-family:'Orbitron',monospace;font-size:.7rem;color:rgba(232,223,192,.4);">${n.visitorNum?String(n.visitorNum).padStart(4,'0'):'—'}</td>
+      <td style="font-weight:600;">${n.display}</td>
+      <td style="font-family:'Orbitron',monospace;font-size:.72rem;color:var(--gold2);">—</td>
+      <td style="font-size:.7rem;color:rgba(232,223,192,.35);">${time}</td>
+    </tr>`;
+  }).join('');
 }
 
 function renderConfig(){
@@ -383,111 +412,69 @@ function renderConfig(){
     const g=gamesData[game];
     const waitVal=g.waitMin!==undefined&&g.waitMin!==null?g.waitMin:'';
     return`<div class="config-card">
-      <div class="cfg-title">
-        <span>${ICONS[game]||'🎴'} ${game}</span>
-        <button class="btn-sm-del" onclick="doRemoveGame('${game}')">削除</button>
-      </div>
-      <div class="cfg-row">
-        <span class="cfg-lbl">オープン / クローズ</span>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <label class="toggle">
-            <input type="checkbox" ${g.open?'checked':''} onchange="doUpdateGame('${game}','open',this.checked)">
-            <span class="tog-slider"></span>
-          </label>
+      <div class="cfg-title"><span>${ICONS[game]||'🎴'} ${game}</span>
+        <button class="btn-sm-del" onclick="doRemoveGame('${game}')">削除</button></div>
+      <div class="cfg-row"><span class="cfg-lbl">オープン / クローズ</span>
+        <div style="display:flex;align-items:center;gap:7px;">
+          <label class="toggle"><input type="checkbox" ${g.open?'checked':''} onchange="doUpdateGame('${game}','open',this.checked)"><span class="tog-sl"></span></label>
           <span class="open-lbl ${g.open?'on':'off'}" id="ol_${game}">${g.open?'OPEN':'CLOSED'}</span>
-        </div>
-      </div>
-      <div class="cfg-row">
-        <span class="cfg-lbl">テーブル数</span>
-        <input class="cfg-input" type="number" min="1" value="${g.tables||1}"
-          onchange="doUpdateGame('${game}','tables',parseInt(this.value)||1)">
-      </div>
-      <div class="cfg-row">
-        <span class="cfg-lbl">1回収容人数</span>
-        <input class="cfg-input" type="number" min="1" value="${g.capacity||4}"
-          onchange="doUpdateGame('${game}','capacity',parseInt(this.value)||4)">
-      </div>
-      <div class="cfg-row">
-        <span class="cfg-lbl">待ち時間（分）手動<br><small style="opacity:.5;">空白=自動計算</small></span>
-        <input class="cfg-input" type="number" min="0" value="${waitVal}" placeholder="自動"
-          onchange="doUpdateGame('${game}','waitMin',this.value===''?null:parseInt(this.value))">
-      </div>
-      <div class="cfg-row">
-        <span class="cfg-lbl">1組あたり待ち(分)</span>
-        <input class="cfg-input" type="number" min="1" value="${g.waitPerGroup||15}"
-          onchange="doUpdateGame('${game}','waitPerGroup',parseInt(this.value)||15)">
-      </div>
+        </div></div>
+      <div class="cfg-row"><span class="cfg-lbl">テーブル数</span>
+        <input class="cfg-inp" type="number" min="1" value="${g.tables||1}" onchange="doUpdateGame('${game}','tables',+this.value||1)"></div>
+      <div class="cfg-row"><span class="cfg-lbl">1回収容人数</span>
+        <input class="cfg-inp" type="number" min="1" value="${g.capacity||4}" onchange="doUpdateGame('${game}','capacity',+this.value||4)"></div>
+      <div class="cfg-row"><span class="cfg-lbl">待ち時間(分)手動<br><small style="opacity:.4;">空白=自動</small></span>
+        <input class="cfg-inp" type="number" min="0" value="${waitVal}" placeholder="自動" onchange="doUpdateGame('${game}','waitMin',this.value===''?null:+this.value)"></div>
+      <div class="cfg-row"><span class="cfg-lbl">1組あたり待ち(分)</span>
+        <input class="cfg-inp" type="number" min="1" value="${g.waitPerGroup||15}" onchange="doUpdateGame('${game}','waitPerGroup',+this.value||15)"></div>
     </div>`;
   }).join('');
 }
 
 async function doUpdateGame(game,field,value){
   await updateGame(game,{[field]:value});
-  if(field==='open'){
-    const lbl=document.getElementById('ol_'+game);
-    if(lbl){lbl.textContent=value?'OPEN':'CLOSED';lbl.className=`open-lbl ${value?'on':'off'}`;}
-  }
+  if(field==='open'){const lbl=document.getElementById('ol_'+game);if(lbl){lbl.textContent=value?'OPEN':'CLOSED';lbl.className=`open-lbl ${value?'on':'off'}`;}}
   showToast('保存しました','ok');
 }
-
 async function doAddGame(){
-  const name=document.getElementById('newName').value.trim();
-  const tables=parseInt(document.getElementById('newTables').value)||1;
-  const cap=parseInt(document.getElementById('newCap').value)||4;
-  if(!name){showToast('ゲーム名を入力してください','err');return;}
+  const name=document.getElementById('newGameName').value.trim();
+  const tables=+document.getElementById('newGameTables').value||1;
+  const cap=+document.getElementById('newGameCap').value||4;
+  if(!name){showToast('ゲーム名を入力','err');return;}
   await addGame(name,tables,cap);
-  document.getElementById('newName').value='';
+  document.getElementById('newGameName').value='';
   showToast(`${name} を追加しました`,'ok');
 }
-
 async function doRemoveGame(game){
-  if(!confirm(`「${game}」を削除しますか？キューも全て消えます。`)) return;
+  if(!confirm(`「${game}」を削除しますか？`))return;
   await removeGame(game);showToast(`${game} を削除しました`);
 }
 
 function populateSelects(){
   const games=Object.keys(gamesData);
-  // queue filter
+  const ig=document.getElementById('issueGame');
+  ig.innerHTML='<option value="">-- 指定なし --</option>'+games.map(g=>`<option value="${g}">${ICONS[g]||'🎴'} ${g}</option>`).join('');
   const qf=document.getElementById('queueFilter');
-  const qfVal=qf.value;
-  qf.innerHTML='<option value="all">全ゲーム</option>'+games.map(g=>`<option value="${g}">${g}</option>`).join('');
-  if(games.includes(qfVal)) qf.value=qfVal;
-  // manual
-  const mg=document.getElementById('manGame');
-  mg.innerHTML=games.map(g=>`<option>${g}</option>`).join('');
-  // clear
+  const qfv=qf.value;
+  qf.innerHTML='<option value="all">全ゲーム</option><option value="__reception__">受付（ゲーム未指定）</option>'+games.map(g=>`<option value="${g}">${g}</option>`).join('');
+  if(qfv) qf.value=qfv;
   const cg=document.getElementById('clearGameSel');
-  cg.innerHTML=games.map(g=>`<option>${g}</option>`).join('');
+  cg.innerHTML='<option value="__reception__">受付（ゲーム未指定）</option>'+games.map(g=>`<option value="${g}">${g}</option>`).join('');
 }
 
-async function doManualAdd(){
-  const game=document.getElementById('manGame').value;
-  const name=document.getElementById('manName').value.trim()||'スタッフ追加';
-  const count=parseInt(document.getElementById('manCount').value)||1;
-  if(!game){showToast('ゲームを選択してください','err');return;}
-  const{num}=await enqueue(game,name,count);
-  showToast(`整理券 ${String(num).padStart(3,'0')} を追加しました`,'ok');
-}
-
-async function doGameClear(){
+async function doClearOne(){
   const game=document.getElementById('clearGameSel').value;
-  if(!game||!confirm(`「${game}」のキューをクリアしますか？`)) return;
-  await clearQueue(game);showToast(`${game} のキューをクリアしました`);
+  if(!game||!confirm(`「${game==='__reception__'?'受付':game}」のキューをクリアしますか？`))return;
+  await clearQueue(game);showToast('クリアしました');
 }
-async function doAllClear(){
-  if(!confirm('全ゲームのキューをリセットします。よろしいですか？')) return;
-  await clearAllQueues();showToast('全キューをクリアしました');
-}
-async function doResetCounter(){
-  if(!confirm('整理番号を0にリセットしますか？')) return;
-  await resetCounter();showToast('カウンターをリセットしました','ok');
-}
+async function doClearAll(){if(!confirm('全キューをリセットします。よろしいですか？'))return;await clearAllQueues();showToast('全キューをクリアしました');}
+async function doResetCounter(){if(!confirm('整理番号を0にリセットしますか？'))return;await resetCounter();showToast('リセットしました','ok');}
+async function doResetVisitor(){if(!confirm('来場者カウンターを0にリセットしますか？'))return;await resetVisitorCount();showToast('リセットしました','ok');}
 
 function switchTab(id){
-  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',['queue','config','manual'][i]===id));
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',['reception','queue','visitors','config','util'][i]===id));
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('tab-'+id).classList.add('active');
-  if(id==='config') renderConfig();
 }
 
 function showToast(msg,type=''){

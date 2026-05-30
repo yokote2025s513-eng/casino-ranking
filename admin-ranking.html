@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>CASINO ROYALE – ランキング管理</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--gold:#f0c040;--gold2:#ffd700;--neon:#00ffe7;--dark:#05080f;--card:#0b1120;--border:rgba(240,192,64,.25);--glow:0 0 18px rgba(240,192,64,.5);--danger:#ff4c6a}
+html,body{min-height:100vh}
+body{background:var(--dark);color:#e8dfc0;font-family:'Rajdhani',sans-serif;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:0;background:linear-gradient(rgba(0,255,231,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,231,.04) 1px,transparent 1px);background-size:60px 60px;pointer-events:none}
+.wrapper{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:0 20px 80px}
+
+header{text-align:center;padding:36px 0 20px}
+.logo-sub{font-family:'Orbitron',monospace;font-size:.6rem;letter-spacing:.4em;color:var(--neon);opacity:.8;margin-bottom:7px}
+h1{font-family:'Orbitron',monospace;font-size:clamp(1.3rem,4vw,2.6rem);font-weight:900;background:linear-gradient(135deg,var(--gold2),var(--gold),#c8860a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 12px rgba(240,192,64,.4));letter-spacing:.05em}
+.subtitle{margin-top:6px;font-size:.75rem;letter-spacing:.3em;color:var(--gold);opacity:.8}
+.header-deco{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:10px}
+.header-deco span{display:inline-block;height:1px;width:70px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.suit{font-size:1rem;color:var(--gold)}
+
+nav{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:24px}
+nav a{font-family:'Orbitron',monospace;font-size:.58rem;letter-spacing:.1em;color:var(--neon);text-decoration:none;border:1px solid var(--neon);padding:6px 14px;border-radius:2px;transition:all .25s}
+nav a:hover{background:var(--neon);color:var(--dark);box-shadow:0 0 14px var(--neon)}
+nav .back{color:rgba(232,223,192,.45);border-color:rgba(232,223,192,.2)}
+nav .back:hover{background:rgba(232,223,192,.08);color:rgba(232,223,192,.8);box-shadow:none}
+
+/* Stats */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:22px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:14px;text-align:center}
+.stat-val{font-family:'Orbitron',monospace;font-size:2rem;font-weight:700;color:var(--gold2);line-height:1}
+.stat-lbl{font-size:.6rem;color:rgba(232,223,192,.32);letter-spacing:.1em;margin-top:4px}
+
+.section-title{font-family:'Orbitron',monospace;font-size:.58rem;letter-spacing:.3em;color:var(--gold);margin-bottom:14px}
+
+/* Add form */
+.add-box{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:20px 24px;margin-bottom:24px;position:relative;overflow:hidden}
+.add-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.add-grid{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:12px;align-items:end}
+.f-lbl{font-family:'Orbitron',monospace;font-size:.5rem;letter-spacing:.14em;color:rgba(232,223,192,.35);margin-bottom:5px;display:block}
+.f-inp{background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:3px;color:#e8dfc0;font-family:'Rajdhani',sans-serif;font-size:.95rem;padding:9px 12px;width:100%;outline:none;transition:border-color .2s}
+.f-inp:focus{border-color:var(--gold);box-shadow:0 0 8px rgba(240,192,64,.12)}
+.f-sel{background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:3px;color:#e8dfc0;font-family:'Rajdhani',sans-serif;font-size:.95rem;padding:9px 12px;width:100%;outline:none}
+.f-sel option{background:#0b1120}
+.btn-add{font-family:'Orbitron',monospace;font-size:.6rem;letter-spacing:.12em;padding:10px 16px;background:rgba(240,192,64,.1);border:1px solid var(--gold);color:var(--gold);border-radius:3px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.btn-add:hover{background:rgba(240,192,64,.2);box-shadow:0 0 10px rgba(240,192,64,.2)}
+.nick-hint{font-size:.72rem;margin-top:4px;min-height:16px}
+.nick-hint.ok{color:var(--neon)}
+.nick-hint.ng{color:var(--danger)}
+
+/* Filter bar */
+.filter-bar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.filter-sel{background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:3px;color:#e8dfc0;font-family:'Rajdhani',sans-serif;font-size:.85rem;padding:6px 10px;outline:none}
+.filter-sel option{background:#0b1120}
+.search-inp{background:rgba(0,0,0,.35);border:1px solid var(--border);border-radius:3px;color:#e8dfc0;font-family:'Rajdhani',sans-serif;font-size:.88rem;padding:6px 12px;outline:none;flex:1;min-width:140px}
+.search-inp::placeholder{color:rgba(232,223,192,.28)}
+
+/* Records table */
+table.rec{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:4px;overflow:hidden}
+table.rec th{font-family:'Orbitron',monospace;font-size:.5rem;letter-spacing:.12em;color:rgba(232,223,192,.3);padding:8px 14px;border-bottom:1px solid var(--border);text-align:left;background:rgba(0,0,0,.18)}
+table.rec td{padding:9px 14px;border-bottom:1px solid rgba(240,192,64,.04);font-size:.86rem;vertical-align:middle}
+table.rec tr:last-child td{border-bottom:none}
+table.rec tr:hover td{background:rgba(240,192,64,.02)}
+.amount-cell{font-family:'Orbitron',monospace;font-size:.78rem;color:var(--neon)}
+.time-cell{font-size:.72rem;color:rgba(232,223,192,.32)}
+.act-btn{font-family:'Orbitron',monospace;font-size:.48rem;letter-spacing:.07em;padding:4px 9px;border-radius:2px;cursor:pointer;transition:all .2s;border:1px solid}
+.btn-del{color:var(--danger);border-color:rgba(255,76,106,.3);background:transparent}
+.btn-del:hover{background:rgba(255,76,106,.08)}
+.btn-edit{color:var(--gold);border-color:rgba(240,192,64,.3);background:transparent;margin-right:3px}
+.btn-edit:hover{background:rgba(240,192,64,.08)}
+.empty-row td{text-align:center;padding:20px;color:rgba(232,223,192,.18);font-family:'Orbitron',monospace;font-size:.62rem;letter-spacing:.14em}
+
+/* Ranking preview */
+.preview-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:24px}
+.pv-card{background:var(--card);border:1px solid var(--border);border-radius:4px;overflow:hidden}
+.pv-hdr{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;background:rgba(240,192,64,.04)}
+.pv-icon{font-size:1.4rem;filter:drop-shadow(0 0 4px var(--gold))}
+.pv-name{font-family:'Orbitron',monospace;font-size:.72rem;font-weight:700;letter-spacing:.08em;color:var(--gold)}
+.pv-list{padding:6px 0}
+.pv-row{display:flex;align-items:center;gap:10px;padding:7px 16px;position:relative;border-bottom:1px solid rgba(240,192,64,.05)}
+.pv-row:last-child{border-bottom:none}
+.pv-bar{position:absolute;left:0;top:0;bottom:0;background:rgba(240,192,64,.05)}
+.pv-rank{font-family:'Orbitron',monospace;font-size:.68rem;font-weight:700;width:22px;text-align:center;flex-shrink:0}
+.pv-rank.r1{color:var(--gold2);font-size:.82rem}
+.pv-rank.r2{color:#c0c0c0}
+.pv-rank.r3{color:#cd7f32}
+.pv-rank.r4,.pv-rank.r5{color:rgba(232,223,192,.3)}
+.pv-nick{flex:1;font-size:.9rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pv-row.r1 .pv-nick{color:var(--gold2)}
+.pv-amount{font-family:'Orbitron',monospace;font-size:.72rem;color:var(--neon);flex-shrink:0}
+.pv-row.r1 .pv-amount{color:var(--gold2)}
+.empty-pv{padding:14px 16px;font-size:.75rem;color:rgba(232,223,192,.22);text-align:center;letter-spacing:.1em}
+
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);z-index:300;background:rgba(11,17,32,.98);border:1px solid var(--gold);border-radius:3px;padding:9px 20px;font-family:'Orbitron',monospace;font-size:.6rem;letter-spacing:.13em;color:var(--gold);opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.err{border-color:var(--danger);color:var(--danger)}
+.toast.ok{border-color:var(--neon);color:var(--neon)}
+footer{text-align:center;padding:36px 0 0;font-size:.62rem;letter-spacing:.2em;color:rgba(232,223,192,.18)}
+@media(max-width:700px){.add-grid{grid-template-columns:1fr 1fr}.stats-row{grid-template-columns:1fr 1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <header>
+    <p class="logo-sub">Admin – Ranking</p>
+    <h1>CASINO ROYALE</h1>
+    <p class="subtitle">🏆 ランキング管理</p>
+    <div class="header-deco"><span></span><span class="suit">🏆 ♠ 🏆</span><span></span></div>
+  </header>
+
+  <nav>
+    <a href="admin.html" class="back">← 管理メニュー</a>
+    <a href="index.html">🏠 TOP</a>
+    <a href="ranking.html">ランキング表示</a>
+  </nav>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-val" id="statRecords">0</div><div class="stat-lbl">総レコード数</div></div>
+    <div class="stat-card"><div class="stat-val" id="statPlayers" style="color:var(--neon);">0</div><div class="stat-lbl">ユニークプレイヤー</div></div>
+    <div class="stat-card"><div class="stat-val" id="statTop" style="color:var(--gold2);font-size:1.1rem;padding-top:8px;">—</div><div class="stat-lbl">総合トップ</div></div>
+  </div>
+
+  <!-- ===== スコア追加 ===== -->
+  <div class="section-title">▸ スコアを追加</div>
+  <div class="add-box">
+    <div class="add-grid">
+      <div>
+        <label class="f-lbl">ニックネーム</label>
+        <input class="f-inp" id="recNick" type="text" placeholder="例: Tanaka" autocomplete="off">
+        <div class="nick-hint" id="recHint"></div>
+      </div>
+      <div>
+        <label class="f-lbl">ゲーム</label>
+        <select class="f-sel" id="recGame">
+          <option value="">選択してください</option>
+        </select>
+      </div>
+      <div>
+        <label class="f-lbl">獲得チップ ($)</label>
+        <input class="f-inp" id="recAmount" type="number" placeholder="1000" min="0">
+      </div>
+      <div style="display:flex;align-items:flex-end;padding-bottom:20px;">
+        <button class="btn-add" onclick="doAddRecord()">+ 追加</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ランキングプレビュー ===== -->
+  <div class="section-title">▸ 現在のランキング（TOP5）</div>
+  <div class="preview-grid" id="previewGrid"></div>
+
+  <!-- ===== 記録一覧 ===== -->
+  <div class="section-title">▸ 記録一覧</div>
+  <div class="filter-bar">
+    <select class="filter-sel" id="filterGame" onchange="renderRecords()">
+      <option value="">全ゲーム</option>
+    </select>
+    <input class="search-inp" id="filterNick" type="text" placeholder="🔍 名前で絞り込み..." oninput="renderRecords()">
+  </div>
+  <table class="rec">
+    <thead><tr><th>ニックネーム</th><th>ゲーム</th><th>チップ</th><th>時刻</th><th>操作</th></tr></thead>
+    <tbody id="recordsBody"></tbody>
+  </table>
+</div>
+
+<datalist id="nicknameList"></datalist>
+<div class="toast" id="toast"></div>
+<footer><p>© 2025 Casino Royale – Admin / Ranking</p></footer>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="data.js"></script>
+<script>
+// セッションチェック
+if(sessionStorage.getItem('adminAuthed')!=='1'){
+  location.href='admin.html';
+}
+
+const ICONS={'ポーカー':'🃏','チンチロ':'🎲','ブラックジャック':'🂡','競馬':'🏇'};
+let recordsData=[], nicksData={};
+let nickTimer=null;
+
+// ゲーム選択を GAMES 定数から埋める
+const recGameSel=document.getElementById('recGame');
+const filterGameSel=document.getElementById('filterGame');
+GAMES.forEach(g=>{
+  recGameSel.innerHTML+=`<option value="${g}">${ICONS[g]||'🎴'} ${g}</option>`;
+  filterGameSel.innerHTML+=`<option value="${g}">${g}</option>`;
+});
+
+attachNicknameAutocomplete(document.getElementById('recNick'),'nicknameList');
+
+onRecordsChange(r=>{recordsData=r;renderStats();renderPreview();renderRecords();});
+onNicknamesChange(d=>{nicksData=d;});
+
+// Nick hint for ranking (show suggestions, don't block)
+document.getElementById('recNick').addEventListener('input',()=>{
+  clearTimeout(nickTimer);
+  const val=document.getElementById('recNick').value.trim();
+  const hint=document.getElementById('recHint');
+  if(!val){hint.textContent='';hint.className='nick-hint';return;}
+  nickTimer=setTimeout(async()=>{
+    const exists=await nicknameExists(val);
+    hint.textContent=exists?'✓ 登録済みプレイヤー':'○ 新規プレイヤー';
+    hint.className=exists?'nick-hint ok':'nick-hint';
+    hint.style.color=exists?'':'rgba(232,223,192,.4)';
+  },380);
+});
+
+function renderStats(){
+  document.getElementById('statRecords').textContent=recordsData.length;
+  const players=new Set(recordsData.map(r=>r.nickname)).size;
+  document.getElementById('statPlayers').textContent=players;
+  const top=aggregateAll(recordsData)[0];
+  document.getElementById('statTop').textContent=top?top.nickname:'—';
+}
+
+function renderPreview(){
+  const grid=document.getElementById('previewGrid');
+  grid.innerHTML=GAMES.map(game=>{
+    const data=aggregateByGame(recordsData,game).slice(0,5);
+    const max=data[0]?.total||1;
+    const rows=data.length===0
+      ?`<div class="empty-pv">NO DATA</div>`
+      :data.map((d,i)=>{
+        const cls=`r${i+1}`;
+        return`<div class="pv-row ${cls}">
+          <div class="pv-bar" style="width:${(d.total/max*100).toFixed(1)}%"></div>
+          <span class="pv-rank ${cls}">${i===0?'👑':i+1}</span>
+          <span class="pv-nick">${d.nickname}</span>
+          <span class="pv-amount">${fmt(d.total)}</span>
+        </div>`;
+      }).join('');
+    return`<div class="pv-card">
+      <div class="pv-hdr"><span class="pv-icon">${ICONS[game]||'🎴'}</span><span class="pv-name">${game}</span></div>
+      <div class="pv-list">${rows}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderRecords(){
+  const body=document.getElementById('recordsBody');
+  const gameFilter=document.getElementById('filterGame').value;
+  const nickFilter=document.getElementById('filterNick').value.toLowerCase();
+  let list=[...recordsData]
+    .filter(r=>(!gameFilter||r.game===gameFilter)&&(!nickFilter||r.nickname.toLowerCase().includes(nickFilter)))
+    .sort((a,b)=>b.createdAt-a.createdAt)
+    .slice(0,80);
+  if(!list.length){body.innerHTML='<tr class="empty-row"><td colspan="5">— レコードなし —</td></tr>';return;}
+  body.innerHTML=list.map(r=>{
+    const d=new Date(r.createdAt);
+    const time=`${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
+    return`<tr>
+      <td style="font-weight:600;">${r.nickname}</td>
+      <td>${ICONS[r.game]||''} ${r.game}</td>
+      <td class="amount-cell">${fmt(r.amount)}</td>
+      <td class="time-cell">${time}</td>
+      <td><button class="act-btn btn-del" onclick="doDelRecord('${r.id}')">DEL</button></td>
+    </tr>`;
+  }).join('');
+}
+
+async function doAddRecord(){
+  const nick=document.getElementById('recNick').value.trim();
+  const game=document.getElementById('recGame').value;
+  const amount=parseInt(document.getElementById('recAmount').value)||0;
+  if(!nick){showToast('ニックネームを入力してください','err');return;}
+  if(!game){showToast('ゲームを選択してください','err');return;}
+  if(amount<=0){showToast('金額を入力してください','err');return;}
+  await registerNickname(nick,null);
+  await addRecord(nick,game,amount);
+  document.getElementById('recNick').value='';
+  document.getElementById('recAmount').value='';
+  document.getElementById('recHint').textContent='';
+  showToast(`${nick} に ${fmt(amount)} を追加しました`,'ok');
+}
+
+async function doDelRecord(id){
+  if(!confirm('このレコードを削除しますか？'))return;
+  await deleteRecord(id);showToast('削除しました');
+}
+
+function showToast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast '+(type||'');
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);
+}
+</script>
+</body>
+</html>
