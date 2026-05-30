@@ -88,6 +88,16 @@ function onNicknamesChange(callback) {
   });
 }
 
+// ニックネームを個別削除
+function deleteNickname(normalizedKey) {
+  return dbRef('reservation/nicknames/' + normalizedKey).remove();
+}
+
+// ニックネームを全削除
+function deleteAllNicknames() {
+  return dbRef('reservation/nicknames').remove();
+}
+
 // ニックネームが存在するか確認
 async function nicknameExists(name) {
   const key = normalizeNick(name);
@@ -192,6 +202,10 @@ function dequeue(game, key) {
 }
 function callGuest(game, key, called) {
   return resRef('queues/' + game + '/' + key).update({ called });
+}
+// 受付済み（案内完了）にする → ゲスト画面から消える
+function serveGuest(game, key) {
+  return resRef('queues/' + game + '/' + key).update({ called: true, served: true });
 }
 function clearQueue(game) {
   return resRef('queues/' + game).remove();
