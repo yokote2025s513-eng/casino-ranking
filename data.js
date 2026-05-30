@@ -203,6 +203,12 @@ function dequeue(game, key) {
 function callGuest(game, key, called) {
   return resRef('queues/' + game + '/' + key).update({ called });
 }
+
+// 受付済み：called を止め served フラグを立てる
+// ゲスト側は served===true を検知して整理券パネルを非表示にする
+function serveGuest(game, key) {
+  return resRef('queues/' + game + '/' + key).update({ called: false, served: true });
+}
 // 受付済み（案内完了）にする → ゲスト画面から消える
 function serveGuest(game, key) {
   return resRef('queues/' + game + '/' + key).update({ called: true, served: true });

@@ -85,7 +85,10 @@ table.qt tr:last-child td{border-bottom:none}
 table.qt tr.called{background:rgba(0,255,231,.03)}
 .num-b{font-family:'Orbitron',monospace;font-size:.76rem;font-weight:700;background:linear-gradient(135deg,var(--gold2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:middle}
-.dot.w{background:var(--gold);box-shadow:0 0 5px var(--gold)}
+.dot.s{background:var(--green);box-shadow:0 0 5px var(--green)}
+table.qt tr.served td{opacity:.5}
+.btn-serve{color:var(--green);border-color:rgba(93,222,138,.4);background:rgba(93,222,138,.06)}
+.btn-serve:hover{background:rgba(93,222,138,.14)}
 .dot.c{background:var(--neon);box-shadow:0 0 6px var(--neon);animation:dp 1.2s infinite}
 @keyframes dp{0%,100%{opacity:1}50%{opacity:.3}}
 .act-btn{font-family:'Orbitron',monospace;font-size:.48rem;letter-spacing:.07em;padding:4px 9px;border-radius:2px;cursor:pointer;transition:all .2s;border:1px solid}
@@ -359,15 +362,22 @@ function renderQueue(){
       :q.map(e=>{
         const ago=Math.floor((Date.now()-e.ts)/60000);
         const agoStr=ago<1?'たった今':ago+'分前';
-        const callBtn=e.called
-          ?`<button class="act-btn btn-uncall" onclick="doUncall('${game}','${e.key}')">UNCALL</button>`
-          :`<button class="act-btn btn-call" onclick="doCall('${game}','${e.key}')">CALL</button>`;
-        return`<tr class="${e.called?'called':''}">
+        let actionBtns;
+        if(e.served){
+          actionBtns=`<span style="font-family:'Orbitron',monospace;font-size:.48rem;color:var(--green);letter-spacing:.08em;margin-right:6px;">✓ 受付済み</span>`;
+        } else if(e.called){
+          actionBtns=`<button class="act-btn btn-serve" onclick="doServe('${game}','${e.key}')">受付済み</button><button class="act-btn btn-uncall" onclick="doUncall('${game}','${e.key}')" style="margin-left:3px;">UNCALL</button>`;
+        } else {
+          actionBtns=`<button class="act-btn btn-call" onclick="doCall('${game}','${e.key}')">CALL</button>`;
+        }
+        const stateLabel=e.served?'受付済み':e.called?'呼出中':'待機中';
+        const dotCls=e.served?'s':e.called?'c':'w';
+        return`<tr class="${e.served?'served':e.called?'called':''}">
           <td><span class="num-b">${String(e.num||0).padStart(3,'0')}</span></td>
-          <td><span class="dot ${e.called?'c':'w'}"></span>${e.called?'呼出中':'待機中'}</td>
+          <td><span class="dot ${dotCls}"></span>${stateLabel}</td>
           <td>${e.nickname||'—'}</td>
           <td style="font-size:.7rem;color:rgba(232,223,192,.35);">${agoStr}</td>
-          <td>${callBtn}<button class="act-btn btn-del" onclick="doDelQueue('${game}','${e.key}')">DEL</button></td>
+          <td style="white-space:nowrap;">${actionBtns}<button class="act-btn btn-del" onclick="doDelQueue('${game}','${e.key}')" style="margin-left:3px;">DEL</button></td>
         </tr>`;
       }).join('');
     return`<div class="queue-section">
@@ -380,6 +390,7 @@ function renderQueue(){
 
 async function doCall(game,key){await callGuest(game,key,true);showToast('📢 呼び出しました','ok');}
 async function doUncall(game,key){await callGuest(game,key,false);showToast('呼出を取り消しました');}
+async function doServe(game,key){await serveGuest(game,key);showToast('✓ 受付済みにしました','ok');}
 async function doDelQueue(game,key){
   if(!confirm('この整理券を削除しますか？'))return;
   await dequeue(game,key);showToast('削除しました');

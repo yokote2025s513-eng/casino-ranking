@@ -316,6 +316,16 @@ function updateMyPanel(){
     }
     return;
   }
+
+  // 受付済み → パネルを非表示にしてローカルストレージをクリア
+  if(entry.served){
+    panel.classList.remove('show');
+    localStorage.removeItem('resKey');localStorage.removeItem('resGame');
+    myKey=null;myGame=null;
+    showToast('✓ 受付が完了しました。ゲームをお楽しみください！','ok');
+    return;
+  }
+
   panel.classList.add('show');
   const pos=q.findIndex(e=>e.key===myKey);
   const cfg=gamesData[myGame]||{};
