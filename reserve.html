@@ -221,7 +221,7 @@ initDefaultReservationGames();
 attachNicknameAutocomplete(document.getElementById('nickInput'),'nicknameList');
 
 onGamesChange(d=>{gamesData=d;renderStatus();populateGameSelect();});
-onQueuesChange(d=>{queuesData=d;renderStatus();updateMyPanel();});
+onQueuesChange(d=>{queuesData=d;renderStatus();populateGameSelect();updateMyPanel();});
 onNicknamesChange(d=>{nicksData=d;});
 
 // Nick validation
@@ -251,7 +251,9 @@ document.getElementById('nickInput').addEventListener('input',()=>{
   },400);
 });
 
-document.addEventListener('DOMContentLoaded',()=>{document.getElementById('gameSelect').addEventListener('change',updateReserveBtn);});
+// gameSelect の change イベント（DOMContentLoaded 不要、スクリプト末尾で直接登録）
+document.getElementById('gameSelect').addEventListener('change', updateReserveBtn);
+
 function updateReserveBtn(){
   const game=document.getElementById('gameSelect').value;
   document.getElementById('reserveBtn').disabled=!(nickOk&&game);
