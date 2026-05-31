@@ -60,7 +60,25 @@ nav a:hover,nav a.active{background:var(--neon);color:var(--dark);box-shadow:0 0
 .live-dot{width:8px;height:8px;border-radius:50%;background:var(--neon);animation:pulse 1.5s infinite;flex-shrink:0}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(0,255,231,.6)}50%{box-shadow:0 0 0 6px rgba(0,255,231,0)}}
 
-/* Game grid (ranking preview) */
+/* Wait status board */
+.wait-board{margin-bottom:36px}
+.wait-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.wait-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:16px 18px;position:relative;overflow:hidden;transition:transform .3s,box-shadow .3s}
+.wait-card:hover{transform:translateY(-3px);box-shadow:var(--glow)}
+.wait-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(240,192,64,.04) 0%,transparent 60%);pointer-events:none}
+.wc-name{font-family:'Orbitron',monospace;font-size:.7rem;font-weight:700;letter-spacing:.1em;color:var(--gold);margin-bottom:8px;display:flex;align-items:center;gap:7px}
+.wc-icon{font-size:1.2rem;filter:drop-shadow(0 0 4px var(--gold))}
+.wc-badge{display:inline-block;font-family:'Orbitron',monospace;font-size:.52rem;letter-spacing:.1em;padding:2px 8px;border-radius:2px;margin-bottom:10px}
+.wc-badge.open{background:rgba(0,255,231,.1);color:var(--neon);border:1px solid rgba(0,255,231,.3)}
+.wc-badge.wait{background:rgba(240,192,64,.1);color:var(--gold);border:1px solid rgba(240,192,64,.3)}
+.wc-badge.full{background:rgba(255,76,106,.1);color:#ff4c6a;border:1px solid rgba(255,76,106,.3)}
+.wc-badge.closed{background:rgba(232,223,192,.05);color:rgba(232,223,192,.22);border:1px solid rgba(232,223,192,.1)}
+.wc-metrics{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px}
+.wc-metric{background:rgba(0,0,0,.28);border-radius:3px;padding:7px 4px;text-align:center}
+.wc-val{font-family:'Orbitron',monospace;font-size:1.1rem;font-weight:700;color:var(--gold2);line-height:1}
+.wc-val.neon{color:var(--neon)}
+.wc-val.green{color:#5dde8a}
+.wc-lab{font-size:.54rem;color:rgba(232,223,192,.35);letter-spacing:.04em;margin-top:2px}
 .game-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
 @media(max-width:900px){.game-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:500px){.game-grid{grid-template-columns:1fr}}
@@ -105,22 +123,16 @@ footer{text-align:center;padding:40px 0 0;font-size:.7rem;letter-spacing:.2em;co
   <nav>
     <a href="index.html" class="active">🏠 TOP</a>
     <a href="ranking.html">🏆 ランキング</a>
-    <a href="reserve.html">🎫 予約・受付</a>
     <a href="admin.html">⚙ 管理者</a>
     <a href="https://yokote2025s513-eng.github.io/casino-rulebook/" target="_blank">📖 ルール</a>
   </nav>
 
-  <!-- Hero cards -->
-  <div class="hero-grid">
-    <a href="ranking.html" class="hero-card">
+  <!-- Hero cards - ランキングのみ -->
+  <div style="margin-bottom:28px;">
+    <a href="ranking.html" class="hero-card" style="max-width:340px;margin:0 auto;display:block;">
       <span class="hero-icon">🏆</span>
       <div class="hero-title">RANKING</div>
       <div class="hero-desc">ゲーム別リアルタイム<br>ランキングを見る</div>
-    </a>
-    <a href="reserve.html" class="hero-card reserve">
-      <span class="hero-icon">🎫</span>
-      <div class="hero-title">予約・受付</div>
-      <div class="hero-desc">整理券を取得して<br>待ち時間を確認する</div>
     </a>
   </div>
 
@@ -133,11 +145,17 @@ footer{text-align:center;padding:40px 0 0;font-size:.7rem;letter-spacing:.2em;co
     </div>
   </div>
 
+  <!-- Wait Status Board -->
+  <div class="live-badge"><span class="live-dot"></span>LIVE – リアルタイム更新中</div>
+  <p class="section-title">▸ 現在の待ち状況 ◂</p>
+  <div class="wait-board">
+    <div class="wait-grid" id="waitGrid"><div class="loading">CONNECTING...</div></div>
+  </div>
+
   <!-- Ticker -->
   <div class="ticker-wrap"><div class="ticker" id="ticker">LOADING...</div></div>
 
   <!-- Ranking preview -->
-  <div class="live-badge"><span class="live-dot"></span>LIVE – リアルタイム更新中</div>
   <p class="section-title">▸ GAME RANKINGS – TOP 5 ◂</p>
   <div class="game-grid" id="gameGrid"><div class="loading">CONNECTING...</div></div>
 
@@ -153,6 +171,53 @@ const se=document.getElementById('stars');
 for(let i=0;i<120;i++){const s=document.createElement('span');s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*4}s;animation-duration:${2+Math.random()*4}s`;se.appendChild(s)}
 
 const ICONS={'ポーカー':'🃏','チンチロ':'🎲','ブラックジャック':'🂡','競馬':'🏇'};
+let gamesData={}, queuesData={};
+
+const STATUS_LABEL={open:'OPEN – 空きあり',wait:'WAIT – 待ちあり',full:'FULL – 混雑中',closed:'CLOSED'};
+function getStatusCls(game){
+  const g=gamesData[game];
+  if(!g||!g.open) return 'closed';
+  const q=sortedQueue(queuesData,game);
+  if(q.length===0) return 'open';
+  if(q.length<(g.tables||1)*2) return 'wait';
+  return 'full';
+}
+
+function renderWaitGrid(){
+  const grid=document.getElementById('waitGrid');
+  const games=Object.keys(gamesData);
+  if(!games.length){grid.innerHTML='<div class="loading">CONNECTING...</div>';return;}
+  grid.innerHTML=games.map(game=>{
+    const g=gamesData[game];
+    const cls=getStatusCls(game);
+    const q=sortedQueue(queuesData,game);
+    const wait=calcWaitMinutes(g,q);
+    // 次の整理番号（待ち中の先頭）
+    const nextEntry=q.find(e=>!e.served);
+    const nextNum=nextEntry?String(nextEntry.num).padStart(3,'0'):'—';
+    return`<div class="wait-card">
+      <div class="wc-name"><span class="wc-icon">${ICONS[game]||'🎴'}</span>${game}</div>
+      <div class="wc-badge ${cls}">${STATUS_LABEL[cls]}</div>
+      <div class="wc-metrics">
+        <div class="wc-metric">
+          <div class="wc-val">${q.filter(e=>!e.served).length}</div>
+          <div class="wc-lab">待ち組数</div>
+        </div>
+        <div class="wc-metric">
+          <div class="wc-val neon">${wait!==null?wait+'分':'--'}</div>
+          <div class="wc-lab">目安待ち</div>
+        </div>
+        <div class="wc-metric">
+          <div class="wc-val green">${nextNum}</div>
+          <div class="wc-lab">次の番号</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+onGamesChange(d=>{gamesData=d;renderWaitGrid();});
+onQueuesChange(d=>{queuesData=d;renderWaitGrid();});
 
 function renderCard(game,records){
   const data=aggregateByGame(records,game).slice(0,5);
