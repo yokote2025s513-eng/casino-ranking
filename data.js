@@ -2,15 +2,16 @@
 //  Casino Ranking – 統合データ層 (data.js)
 //  ランキング + 予約システム + ニックネーム管理
 // ============================================================
-const FIREBASE_CONFIG = {
-  apiKey:            "AIzaSyD_T643ftJeU9r5CJJ5hMYQ6eoGRvNIvDY",
-  authDomain:        "casino-ranking.firebaseapp.com",
-  databaseURL:       "https://casino-ranking-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId:         "casino-ranking",
-  storageBucket:     "casino-ranking.firebasestorage.app",
-  messagingSenderId: "889934164094",
-  appId:             "1:889934164094:web:9278ca45e10950fab7282f"
+const firebaseConfig = {
+  apiKey: "AIzaSyCTjWRVRDRHbkKCoHUVs8mVacE-Nyoetj8",
+  authDomain: "casino-b8102.firebaseapp.com",
+  databaseURL: "https://casino-b8102-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "casino-b8102",
+  storageBucket: "casino-b8102.firebasestorage.app",
+  messagingSenderId: "737208136730",
+  appId: "1:737208136730:web:bd35fb984adbd92d818da3"
 };
+
 
 const GAMES = ['ポーカー', 'チンチロ', 'ブラックジャック', '競馬'];
 const ADMIN_PASSWORD = 'admin';
