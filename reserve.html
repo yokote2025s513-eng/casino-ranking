@@ -25,7 +25,7 @@ h1{font-family:'Orbitron',monospace;font-size:clamp(1.8rem,5vw,3.5rem);font-weig
 .header-deco span{display:inline-block;height:1px;width:90px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
 .suit{font-size:1.1rem;color:var(--gold);filter:drop-shadow(0 0 5px var(--gold))}
 
-nav{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:30px}
+nav{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:28px}
 nav a{font-family:'Orbitron',monospace;font-size:.62rem;letter-spacing:.12em;color:var(--neon);text-decoration:none;border:1px solid var(--neon);padding:7px 16px;border-radius:2px;transition:all .25s}
 nav a:hover,nav a.active{background:var(--neon);color:var(--dark);box-shadow:0 0 18px var(--neon)}
 
@@ -82,7 +82,7 @@ nav a:hover,nav a.active{background:var(--neon);color:var(--dark);box-shadow:0 0
 .form-label{font-family:'Orbitron',monospace;font-size:.55rem;letter-spacing:.18em;color:var(--neon)}
 .form-input,.form-select{background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:3px;color:#e8dfc0;font-family:'Rajdhani',sans-serif;font-size:1rem;padding:10px 13px;outline:none;width:100%;transition:border-color .2s,box-shadow .2s}
 .form-input:focus,.form-select:focus{border-color:var(--gold);box-shadow:0 0 10px rgba(240,192,64,.15)}
-.form-input.error{border-color:var(--danger);box-shadow:0 0 8px rgba(255,76,106,.2)}
+.form-input.error{border-color:var(--danger)}
 .form-select option{background:#0b1120;color:#e8dfc0}
 .nick-hint{font-size:.72rem;margin-top:4px;min-height:18px}
 .nick-hint.ok{color:var(--neon)}
@@ -131,7 +131,7 @@ footer{text-align:center;padding:38px 0 0;font-size:.63rem;letter-spacing:.2em;c
   <nav>
     <a href="index.html">🏠 TOP</a>
     <a href="ranking.html">🏆 ランキング</a>
-    <a href="reserve.html" class="active">🎫 予約・受付</a>
+    <a href="reserve.html" class="active">🎫 予約</a>
     <a href="admin.html">⚙ 管理者</a>
     <a href="https://yokote2025s513-eng.github.io/casino-rulebook/" target="_blank">📖 ルール</a>
   </nav>
@@ -204,37 +204,31 @@ footer{text-align:center;padding:38px 0 0;font-size:.63rem;letter-spacing:.2em;c
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script src="data.js"></script>
 <script>
-// Stars
 const se=document.getElementById('stars');
 for(let i=0;i<100;i++){const s=document.createElement('span');s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*4}s;animation-duration:${2+Math.random()*4}s`;se.appendChild(s)}
 
 const ICONS={'ポーカー':'🃏','チンチロ':'🎲','ブラックジャック':'🂡','競馬':'🏇'};
-let gamesData={}, queuesData={}, nicksData={};
+const STATUS_LABEL={open:'OPEN – 空きあり',wait:'WAIT – 待ちあり',full:'FULL – 混雑中',closed:'CLOSED'};
+let gamesData={}, queuesData={};
 let myKey=localStorage.getItem('resKey')||null;
 let myGame=localStorage.getItem('resGame')||null;
-let nickCheckTimer=null;
-let nickOk=false;
+let nickTimer=null, nickOk=false;
 
 initDefaultReservationGames();
-
-// Autocomplete datalist
 attachNicknameAutocomplete(document.getElementById('nickInput'),'nicknameList');
 
-onGamesChange(d=>{gamesData=d;renderStatus();populateGameSelect();});
-onQueuesChange(d=>{queuesData=d;renderStatus();populateGameSelect();updateMyPanel();});
-onNicknamesChange(d=>{nicksData=d;});
+onGamesChange(d=>{gamesData=d; renderStatus(); populateGameSelect();});
+onQueuesChange(d=>{queuesData=d; renderStatus(); populateGameSelect(); updateMyPanel();});
 
-// Nick validation
+// ニックネームバリデーション
 document.getElementById('nickInput').addEventListener('input',()=>{
-  clearTimeout(nickCheckTimer);
+  clearTimeout(nickTimer);
   const val=document.getElementById('nickInput').value.trim();
   const hint=document.getElementById('nickHint');
-  const btn=document.getElementById('reserveBtn');
-  nickOk=false;
-  btn.disabled=true;
-  if(!val){hint.textContent='';hint.className='nick-hint';return;}
+  nickOk=false; updateBtn();
+  if(!val){hint.textContent='';hint.className='nick-hint';document.getElementById('nickInput').classList.remove('error');return;}
   hint.textContent='確認中...';hint.className='nick-hint';
-  nickCheckTimer=setTimeout(async()=>{
+  nickTimer=setTimeout(async()=>{
     const exists=await nicknameExists(val);
     if(exists){
       hint.textContent='✕ このニックネームはすでに登録されています';
@@ -247,39 +241,22 @@ document.getElementById('nickInput').addEventListener('input',()=>{
       document.getElementById('nickInput').classList.remove('error');
       nickOk=true;
     }
-    updateReserveBtn();
+    updateBtn();
   },400);
 });
+document.getElementById('gameSelect').addEventListener('change', updateBtn);
 
-// gameSelect の change イベント（DOMContentLoaded 不要、スクリプト末尾で直接登録）
-document.getElementById('gameSelect').addEventListener('change', updateReserveBtn);
-
-function updateReserveBtn(){
-  const game=document.getElementById('gameSelect').value;
-  document.getElementById('reserveBtn').disabled=!(nickOk&&game);
+function updateBtn(){
+  document.getElementById('reserveBtn').disabled=!(nickOk && document.getElementById('gameSelect').value);
 }
 
 function getStatusCls(game){
   const g=gamesData[game];
   if(!g||!g.open) return 'closed';
-  const q=sortedQueue(queuesData,game);
+  const q=sortedQueue(queuesData,game).filter(e=>!e.served);
   if(q.length===0) return 'open';
   if(q.length<(g.tables||1)*2) return 'wait';
   return 'full';
-}
-const STATUS_LABEL={open:'OPEN – 空きあり',wait:'WAIT – 待ちあり',full:'FULL – 混雑中',closed:'CLOSED'};
-function populateGameSelect(){
-  const sel=document.getElementById('gameSelect');
-  const cur=sel.value;
-  sel.innerHTML='<option value="">-- ゲームを選んでください --</option>';
-  Object.keys(gamesData).forEach(g=>{
-    const cls=getStatusCls(g);
-    const dis=cls==='closed'?'disabled':'';
-    const lbl=cls==='closed'?' (クローズ中)':'';
-    sel.innerHTML+=`<option value="${g}" ${dis}>${g}${lbl}</option>`;
-  });
-  if(cur) sel.value=cur;
-  updateReserveBtn();
 }
 
 function renderStatus(){
@@ -289,7 +266,7 @@ function renderStatus(){
   grid.innerHTML=games.map(g=>{
     const cfg=gamesData[g];
     const cls=getStatusCls(g);
-    const q=sortedQueue(queuesData,g);
+    const q=sortedQueue(queuesData,g).filter(e=>!e.served);
     const wait=calcWaitMinutes(cfg,q);
     return`<div class="status-card">
       <div class="sc-name"><span class="sc-icon">${ICONS[g]||'🎴'}</span>${g}</div>
@@ -302,7 +279,19 @@ function renderStatus(){
   }).join('');
 }
 
-
+function populateGameSelect(){
+  const sel=document.getElementById('gameSelect');
+  const cur=sel.value;
+  sel.innerHTML='<option value="">-- ゲームを選んでください --</option>';
+  Object.keys(gamesData).forEach(g=>{
+    const cls=getStatusCls(g);
+    const dis=cls==='closed'?'disabled':'';
+    const lbl=cls==='closed'?' (クローズ中)':'';
+    sel.innerHTML+=`<option value="${g}" ${dis}>${g}${lbl}</option>`;
+  });
+  if(cur) sel.value=cur;
+  updateBtn();
+}
 
 function updateMyPanel(){
   if(!myKey||!myGame) return;
@@ -311,42 +300,36 @@ function updateMyPanel(){
   const entry=q.find(e=>e.key===myKey);
   if(!entry){
     if(panel.classList.contains('show')){
-      showToast('整理券が削除されました');
       panel.classList.remove('show');
-      localStorage.removeItem('resKey');localStorage.removeItem('resGame');
-      myKey=null;myGame=null;
+      localStorage.removeItem('resKey'); localStorage.removeItem('resGame');
+      myKey=null; myGame=null;
+      showToast('整理券が削除されました');
     }
     return;
   }
-
-  // 受付済み → パネルを非表示にしてローカルストレージをクリア
   if(entry.served){
     panel.classList.remove('show');
-    localStorage.removeItem('resKey');localStorage.removeItem('resGame');
-    myKey=null;myGame=null;
+    localStorage.removeItem('resKey'); localStorage.removeItem('resGame');
+    myKey=null; myGame=null;
     showToast('✓ 受付が完了しました。ゲームをお楽しみください！','ok');
     return;
   }
-
   panel.classList.add('show');
-  const pos=q.findIndex(e=>e.key===myKey);
+  const activeQ=q.filter(e=>!e.served);
+  const pos=activeQ.findIndex(e=>e.key===myKey);
   const cfg=gamesData[myGame]||{};
-  const perG=cfg.waitPerGroup||15;
-  const tables=cfg.tables||1;
-  const myWait=Math.ceil((pos+1)/tables)*perG;
-
+  const myWait=Math.ceil(((pos<0?0:pos)+1)/(cfg.tables||1))*(cfg.waitPerGroup||15);
   document.getElementById('mtpNum').textContent=String(entry.num).padStart(3,'0');
   document.getElementById('mtpGame').textContent=myGame;
   document.getElementById('mtpWait').textContent=`目安待ち時間 約${myWait}分`;
-  document.getElementById('mtpPos').textContent=pos===0?'次のご案内です':`あなたの前に ${pos} 組待ち`;
-
+  document.getElementById('mtpPos').textContent=pos<=0?'次のご案内です':`あなたの前に ${pos} 組待ち`;
   const badge=document.getElementById('mtpBadge');
   const alert=document.getElementById('calledAlert');
   if(entry.called){
-    badge.textContent='CALLED – お呼び出し中';badge.className='mtp-badge called';
+    badge.textContent='CALLED – お呼び出し中'; badge.className='mtp-badge called';
     alert.classList.add('show');
   } else {
-    badge.textContent='WAITING';badge.className='mtp-badge waiting';
+    badge.textContent='WAITING'; badge.className='mtp-badge waiting';
     alert.classList.remove('show');
   }
 }
@@ -354,45 +337,42 @@ function updateMyPanel(){
 async function submitReservation(){
   const nick=document.getElementById('nickInput').value.trim();
   const game=document.getElementById('gameSelect').value;
-  if(!nick||!game){return;}
+  if(!nick||!game) return;
   if(myKey){showToast('すでに整理券を持っています','err');return;}
-  const btn=document.getElementById('reserveBtn');
-  btn.disabled=true;
+  document.getElementById('reserveBtn').disabled=true;
   try{
     const {num,key,visitorNum}=await enqueue(game,nick,false);
-    myKey=key;myGame=game;
-    localStorage.setItem('resKey',key);localStorage.setItem('resGame',game);
-    const q=sortedQueue(queuesData,game);
+    myKey=key; myGame=game;
+    localStorage.setItem('resKey',key); localStorage.setItem('resGame',game);
+    const q=sortedQueue(queuesData,game).filter(e=>!e.served);
     const wait=calcWaitMinutes(gamesData[game],q);
     document.getElementById('tkNum').textContent=String(num).padStart(3,'0');
     document.getElementById('tkGame').textContent=game;
+    document.getElementById('tkVisitor').textContent='来場者番号 '+String(visitorNum).padStart(4,'0');
     document.getElementById('tkPos').textContent=q.length+'番目';
     document.getElementById('tkWait').textContent=(wait||0)+'分';
-    document.getElementById('tkVisitor').textContent='来場者番号 '+String(visitorNum).padStart(4,'0');
-    document.getElementById('tkName').textContent=`${nick} 様`;
+    document.getElementById('tkName').textContent=nick+' 様';
     document.getElementById('ticketModal').classList.add('show');
     document.getElementById('nickInput').value='';
     document.getElementById('gameSelect').value='';
     document.getElementById('nickHint').textContent='';
     document.getElementById('nickHint').className='nick-hint';
-    nickOk=false;
+    document.getElementById('nickInput').classList.remove('error');
+    nickOk=false; updateBtn();
     updateMyPanel();
-  } catch(e){
-    if(e.message==='DUPLICATE_NICKNAME'){
-      showToast('そのニックネームはすでに使われています','err');
-    } else {
-      showToast('エラーが発生しました','err');console.error(e);
-    }
+  }catch(e){
+    if(e.message==='DUPLICATE_NICKNAME') showToast('そのニックネームはすでに使われています','err');
+    else{showToast('エラーが発生しました','err');console.error(e);}
+    document.getElementById('reserveBtn').disabled=false;
   }
-  btn.disabled=true;
 }
 
 async function cancelMyTicket(){
   if(!myKey||!myGame) return;
   if(!confirm('整理券をキャンセルしますか？')) return;
   await dequeue(myGame,myKey);
-  localStorage.removeItem('resKey');localStorage.removeItem('resGame');
-  myKey=null;myGame=null;
+  localStorage.removeItem('resKey'); localStorage.removeItem('resGame');
+  myKey=null; myGame=null;
   document.getElementById('myTicketPanel').classList.remove('show');
   showToast('整理券をキャンセルしました');
 }
@@ -402,8 +382,8 @@ document.getElementById('ticketModal').addEventListener('click',function(e){if(e
 
 function showToast(msg,type=''){
   const t=document.getElementById('toast');
-  t.textContent=msg;t.className='toast '+(type||'');
-  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);
+  t.textContent=msg; t.className='toast '+(type||'');
+  t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3500);
 }
 </script>
 </body>

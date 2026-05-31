@@ -16,7 +16,7 @@ const GAMES = ['ポーカー', 'チンチロ', 'ブラックジャック', '競�
 const ADMIN_PASSWORD = 'admin';
 const DB_PATH = 'records';
 
-// ── Firebase 初期化 ──────────────────────────────────────────
+// ── Firebase 初期化 ───────────────────────────────────────────
 let _db = null;
 function initFirebase() {
   if (_db) return _db;
@@ -28,14 +28,14 @@ function dbRef(path) {
   return initFirebase().ref(path || DB_PATH);
 }
 
-// ── ランキング CRUD ──────────────────────────────────────────
+// ── ランキング CRUD ───────────────────────────────────────────
 function addRecord(nickname, game, amount) {
-  const newRef = dbRef().push();
-  return newRef.set({ id: newRef.key, nickname, game, amount: Number(amount), createdAt: Date.now() });
+  const r = dbRef().push();
+  return r.set({ id: r.key, nickname, game, amount: Number(amount), createdAt: Date.now() });
 }
 function addRecordWithRef(nickname, game, amount) {
-  const newRef = dbRef().push();
-  return newRef.set({ id: newRef.key, nickname, game, amount: Number(amount), createdAt: Date.now() }).then(() => newRef);
+  const r = dbRef().push();
+  return r.set({ id: r.key, nickname, game, amount: Number(amount), createdAt: Date.now() }).then(() => r);
 }
 function updateRecord(id, nickname, game, amount) {
   return dbRef().child(id).update({ nickname, game, amount: Number(amount) });
@@ -44,10 +44,7 @@ function deleteRecord(id) {
   return dbRef().child(id).remove();
 }
 function onRecordsChange(callback) {
-  dbRef().on('value', snap => {
-    const raw = snap.val() || {};
-    callback(Object.values(raw));
-  });
+  dbRef().on('value', snap => callback(Object.values(snap.val() || {})));
 }
 
 // ── 集計 ─────────────────────────────────────────────────────
@@ -73,53 +70,30 @@ function fmt(n) { return '$' + Number(n).toLocaleString(); }
 // ============================================================
 //  ニックネーム管理
 //  reservation/nicknames/{normalized} = { display, createdAt, visitorNum }
-//  ランキング・予約どちらで登録されたニックネームも一元管理
 // ============================================================
 function normalizeNick(name) {
   return name.trim().toLowerCase().replace(/\s+/g, '');
 }
-
-// ニックネーム一覧をリアルタイム取得（予測変換・重複チェック用）
 function onNicknamesChange(callback) {
-  dbRef('reservation/nicknames').on('value', snap => {
-    const raw = snap.val() || {};
-    // { normalized: { display, createdAt, visitorNum } }
-    callback(raw);
-  });
+  dbRef('reservation/nicknames').on('value', snap => callback(snap.val() || {}));
 }
-
-// ニックネームを個別削除
 function deleteNickname(normalizedKey) {
   return dbRef('reservation/nicknames/' + normalizedKey).remove();
 }
-
-// ニックネームを全削除
 function deleteAllNicknames() {
   return dbRef('reservation/nicknames').remove();
 }
-
-// ニックネームが存在するか確認
 async function nicknameExists(name) {
-  const key = normalizeNick(name);
-  const snap = await dbRef('reservation/nicknames/' + key).once('value');
+  const snap = await dbRef('reservation/nicknames/' + normalizeNick(name)).once('value');
   return snap.exists();
 }
-
-// ニックネームを登録（整理券発行時・ランキング追加時に呼ぶ）
 async function registerNickname(displayName, visitorNum) {
   const key = normalizeNick(displayName);
   const snap = await dbRef('reservation/nicknames/' + key).once('value');
-  if (snap.exists()) return snap.val(); // already exists
+  if (snap.exists()) return snap.val();
   const data = { display: displayName.trim(), createdAt: Date.now(), visitorNum: visitorNum || null };
   await dbRef('reservation/nicknames/' + key).set(data);
   return data;
-}
-
-// 全ニックネーム一覧を配列で返す（予測変換用）
-async function getAllNicknames() {
-  const snap = await dbRef('reservation/nicknames').once('value');
-  const raw = snap.val() || {};
-  return Object.values(raw).map(v => v.display);
 }
 
 // ============================================================
@@ -148,52 +122,19 @@ function onQueuesChange(callback) {
   resRef('queues').on('value', snap => callback(snap.val() || {}));
 }
 
-// 整理券発行（ニックネーム重複チェック込み）
-// byStaff=true の場合は重複チェックをスキップ（受付がウォークイン客に発行）
+// 整理券発行
+// byStaff=true のとき重複チェックをスキップ（受付スタッフ発行）
 async function enqueue(game, nickname, byStaff = false) {
   const trimmed = nickname.trim() || 'ゲスト';
-
   if (!byStaff) {
-    const exists = await nicknameExists(trimmed);
-    if (exists) throw new Error('DUPLICATE_NICKNAME');
+    if (await nicknameExists(trimmed)) throw new Error('DUPLICATE_NICKNAME');
   }
-
-  // 来場者カウンター & 整理番号 をトランザクションで取得
-  const counterRef = resRef('counter');
-  const visitorRef = resRef('visitorCount');
   let num, visitorNum;
-
-  await counterRef.transaction(cur => { num = (cur || 0) + 1; return num; });
-  await visitorRef.transaction(cur => { visitorNum = (cur || 0) + 1; return visitorNum; });
-
-  // ニックネーム登録
+  await resRef('counter').transaction(cur => { num = (cur || 0) + 1; return num; });
+  await resRef('visitorCount').transaction(cur => { visitorNum = (cur || 0) + 1; return visitorNum; });
   await registerNickname(trimmed, visitorNum);
-
-  // キューに追加
   const ref = resRef('queues/' + game).push();
-  await ref.set({
-    num, nickname: trimmed, visitorNum,
-    ts: Date.now(), called: false, key: ref.key, byStaff
-  });
-
-  return { num, key: ref.key, visitorNum };
-}
-
-// ゲーム選択なしの来場者整理券発行（reserve.html用）
-async function enqueueNoGame(nickname) {
-  const trimmed = nickname.trim() || 'ゲスト';
-  const exists = await nicknameExists(trimmed);
-  if (exists) throw new Error('DUPLICATE_NICKNAME');
-
-  const counterRef = resRef('counter');
-  const visitorRef = resRef('visitorCount');
-  let num, visitorNum;
-  await counterRef.transaction(cur => { num = (cur || 0) + 1; return num; });
-  await visitorRef.transaction(cur => { visitorNum = (cur || 0) + 1; return visitorNum; });
-  await registerNickname(trimmed, visitorNum);
-
-  const ref = resRef('queues/__reception__').push();
-  await ref.set({ num, nickname: trimmed, visitorNum, ts: Date.now(), called: false, key: ref.key });
+  await ref.set({ num, nickname: trimmed, visitorNum, ts: Date.now(), called: false, served: false, key: ref.key, byStaff });
   return { num, key: ref.key, visitorNum };
 }
 
@@ -203,15 +144,9 @@ function dequeue(game, key) {
 function callGuest(game, key, called) {
   return resRef('queues/' + game + '/' + key).update({ called });
 }
-
-// 受付済み：called を止め served フラグを立てる
-// ゲスト側は served===true を検知して整理券パネルを非表示にする
+// 受付済み：呼出を止めてservedフラグ → ゲスト画面の整理券パネルが消える
 function serveGuest(game, key) {
   return resRef('queues/' + game + '/' + key).update({ called: false, served: true });
-}
-// 受付済み（案内完了）にする → ゲスト画面から消える
-function serveGuest(game, key) {
-  return resRef('queues/' + game + '/' + key).update({ called: true, served: true });
 }
 function clearQueue(game) {
   return resRef('queues/' + game).remove();
@@ -238,7 +173,9 @@ function calcWaitMinutes(gameConfig, queueEntries) {
   if (gameConfig.waitMin !== undefined && gameConfig.waitMin !== null) return gameConfig.waitMin;
   const perGroup = gameConfig.waitPerGroup || 15;
   const tables   = gameConfig.tables || 1;
-  return Math.ceil(Math.max(0, queueEntries.length) / tables) * perGroup;
+  // served済みは除外して計算
+  const waiting = queueEntries.filter(e => !e.served).length;
+  return Math.ceil(Math.max(0, waiting) / tables) * perGroup;
 }
 
 function sortedQueue(queuesData, game) {
@@ -248,7 +185,7 @@ function sortedQueue(queuesData, game) {
     .sort((a, b) => a.ts - b.ts);
 }
 
-// ── 初期ゲームデータ（初回のみ）────────────────────────────────
+// ── 初期ゲームデータ（初回のみ）──────────────────────────────
 async function initDefaultReservationGames() {
   const snap = await resRef('games').once('value');
   if (snap.exists()) return;
@@ -257,8 +194,7 @@ async function initDefaultReservationGames() {
   await resRef('games').set(defaults);
 }
 
-// ── ニックネーム予測変換ヘルパー ──────────────────────────────
-// input要素にdatalistを紐付ける
+// ── ニックネーム予測変換ヘルパー ─────────────────────────────
 function attachNicknameAutocomplete(inputEl, datalistId) {
   const listId = datalistId || 'nicknameList';
   let datalist = document.getElementById(listId);
@@ -269,8 +205,6 @@ function attachNicknameAutocomplete(inputEl, datalistId) {
   }
   inputEl.setAttribute('list', listId);
   inputEl.setAttribute('autocomplete', 'off');
-
-  // リアルタイム更新
   onNicknamesChange(nicks => {
     datalist.innerHTML = Object.values(nicks)
       .sort((a, b) => a.display.localeCompare(b.display, 'ja'))
